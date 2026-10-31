@@ -1,0 +1,19 @@
+.control {
+    position: relative;
+}
+
+.select {
+    padding-right: var(--touch-target);
+    appearance: none;
+    cursor: pointer;
+}
+
+.chevron {
+    position: absolute;
+    top: 50%;
+    right: var(--space-3);
+    display: grid;
+    color: var(--text-muted);
+    pointer-events: none;
+    transform: translateY(-50%);
+}

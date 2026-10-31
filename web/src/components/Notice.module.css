@@ -1,0 +1,8 @@
+.notice {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    background: var(--rose-tint);
+    color: var(--rose);
+    font-size: var(--text-sm);
+    font-weight: 650;
+}

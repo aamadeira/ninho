@@ -1,0 +1,21 @@
+.row {
+    display: flex;
+    gap: var(--space-2);
+    margin: 0 calc(var(--space-4) * -1) var(--space-4);
+    padding: var(--space-1) var(--space-4);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+    display: none;
+}
+
+@media (min-width: 900px) {
+    .row {
+        flex-wrap: wrap;
+        margin: 0 0 var(--space-4);
+        padding: var(--space-1) 0;
+        overflow: visible;
+    }
+}

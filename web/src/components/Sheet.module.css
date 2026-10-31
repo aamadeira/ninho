@@ -1,0 +1,112 @@
+.dim {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: var(--backdrop);
+    opacity: var(--dim-level, 0);
+}
+
+.topBarTint {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 33;
+    height: var(--space-3);
+    background: color-mix(in srgb, var(--backdrop-tint) calc(var(--backdrop-strength) * var(--dim-level, 0) * 100%), var(--paper));
+    pointer-events: none;
+}
+
+.panel {
+    position: fixed;
+    right: 0;
+    bottom: var(--keyboard-inset, 0px);
+    left: 0;
+    z-index: 31;
+    max-height: calc(var(--visible-height, 100%) - var(--space-7));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    outline: none;
+    padding: var(--space-4) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-sheet);
+    animation: slide-up var(--duration-slow) var(--ease-out);
+}
+
+.keyboardGap {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 31;
+    height: var(--keyboard-inset, 0px);
+    background: var(--surface);
+}
+
+.grabber {
+    width: 36px;
+    height: 5px;
+    margin: calc(var(--space-2) * -1) auto var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--line-strong);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.title {
+    font-size: var(--text-xl);
+}
+
+.close {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    margin-right: calc(var(--space-2) * -1);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--paper-sunk);
+    color: var(--text-muted);
+}
+
+@media (min-width: 900px) {
+    .grabber,
+    .topBarTint {
+        display: none;
+    }
+
+    .panel {
+        top: 50%;
+        right: auto;
+        bottom: auto;
+        left: 50%;
+        width: min(560px, calc(100% - var(--space-6)));
+        padding: var(--space-5);
+        border-radius: var(--radius-lg);
+        translate: -50% -50%;
+        animation-name: fade-in;
+    }
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(24px);
+        opacity: 0;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        transform: scale(0.98);
+        opacity: 0;
+    }
+}

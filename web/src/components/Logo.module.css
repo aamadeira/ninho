@@ -1,0 +1,49 @@
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--ink);
+}
+
+.mark {
+    flex: none;
+}
+
+.egg {
+    fill: var(--paper-sunk);
+    stroke: var(--ink);
+    stroke-width: 1.75;
+}
+
+.nest {
+    fill: var(--clay);
+}
+
+.twig {
+    fill: none;
+    stroke: var(--paper);
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    opacity: 0.55;
+}
+
+.wordmark {
+    font-family: var(--font-display);
+    font-variation-settings: "SOFT" var(--display-soft);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.sm .wordmark {
+    font-size: var(--text-xl);
+}
+
+.lg {
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.lg .wordmark {
+    font-size: var(--text-display);
+}

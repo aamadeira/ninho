@@ -1,0 +1,15 @@
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+}
+
+.tag {
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--olive-tint);
+    color: var(--olive);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    line-height: var(--leading-snug);
+}

@@ -1,0 +1,1 @@
+ALTER TABLE shopping_items ADD COLUMN tags TEXT NOT NULL DEFAULT '[]';

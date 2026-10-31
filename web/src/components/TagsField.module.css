@@ -1,0 +1,77 @@
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+    padding: var(--space-1) var(--space-2);
+    border: var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: text;
+    transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.box:hover {
+    border-color: var(--text-subtle);
+}
+
+.box:focus-within {
+    border-color: var(--clay);
+    box-shadow: 0 0 0 3px var(--clay-tint);
+}
+
+.pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 32px;
+    padding: 0 var(--space-2) 0 var(--space-3);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--olive-tint);
+    color: var(--olive);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    animation: pill-in var(--duration-base) var(--ease-out);
+}
+
+.pill::after {
+    content: "";
+    position: absolute;
+    inset: -6px -2px;
+}
+
+.pill:hover {
+    background: var(--olive);
+    color: var(--on-olive);
+}
+
+.input {
+    flex: 1;
+    min-width: 8ch;
+    min-height: 34px;
+    padding: 0 var(--space-1);
+    border: 0;
+    background: transparent;
+    font-size: var(--text-base);
+    outline: none;
+}
+
+.input:focus-visible {
+    box-shadow: none;
+}
+
+@keyframes pill-in {
+    from {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+}

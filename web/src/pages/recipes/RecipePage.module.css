@@ -1,0 +1,134 @@
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--touch-target);
+    margin-bottom: var(--space-2);
+    color: var(--text-muted);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.back:hover {
+    color: var(--ink);
+}
+
+.hero {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    aspect-ratio: 16 / 10;
+    margin-bottom: var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--paper-sunk);
+    object-fit: cover;
+}
+
+.title {
+    font-size: var(--text-display);
+    line-height: var(--leading-tight);
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tag {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--olive-tint);
+    color: var(--olive);
+    font-size: var(--text-sm);
+    font-weight: 700;
+}
+
+.source {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: var(--touch-target);
+    margin-top: var(--space-2);
+    font-weight: 700;
+}
+
+.columns {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+}
+
+.panel {
+    padding: var(--space-5);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+}
+
+.heading {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xl);
+}
+
+.ingredients {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ingredients li {
+    padding: var(--space-2) 0;
+    border-top: var(--border);
+}
+
+.ingredients li:first-child {
+    border-top: 0;
+}
+
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+}
+
+.steps li {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: var(--space-3);
+    counter-increment: step;
+}
+
+.steps li::before {
+    content: counter(step);
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-pill);
+    background: var(--clay-tint);
+    color: var(--clay);
+    font-weight: 800;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+}
+
+@media (min-width: 900px) {
+    .columns {
+        grid-template-columns: 2fr 3fr;
+        align-items: start;
+    }
+}

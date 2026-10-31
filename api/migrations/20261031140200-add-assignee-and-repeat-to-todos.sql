@@ -1,0 +1,7 @@
+ALTER TABLE todos ADD COLUMN assignee_id INTEGER REFERENCES users (id) ON DELETE SET NULL;
+
+ALTER TABLE todos ADD COLUMN due_date TEXT;
+
+ALTER TABLE todos ADD COLUMN repeat_every INTEGER;
+
+ALTER TABLE todos ADD COLUMN repeat_unit TEXT;

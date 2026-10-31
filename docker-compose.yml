@@ -1,0 +1,15 @@
+services:
+  ninho:
+    image: ghcr.io/aamadeira/ninho:latest
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    environment:
+      TZ: Europe/Lisbon
+      DISABLED_FEATURES: "" # e.g. "recipes,calendar"
+    volumes:
+      - ninho-data:/srv/ninho/data
+
+volumes:
+  ninho-data:

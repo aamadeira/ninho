@@ -1,0 +1,48 @@
+.layout {
+    min-height: 100dvh;
+    background: var(--paper);
+}
+
+.safariTopBarTint {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 32;
+    height: var(--space-3);
+    background: var(--paper);
+    pointer-events: none;
+}
+
+.column {
+    min-width: 0;
+}
+
+.main {
+    width: 100%;
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--space-2) var(--space-4) calc(var(--tabbar-height) + var(--space-6) + env(safe-area-inset-bottom));
+    animation: page-in var(--duration-base) var(--ease-out);
+}
+
+@media (min-width: 900px) {
+    .safariTopBarTint {
+        display: none;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: var(--sidebar-width) 1fr;
+    }
+
+    .main {
+        padding: var(--space-7) var(--space-6) var(--space-8);
+    }
+}
+
+@keyframes page-in {
+    from {
+        opacity: 0;
+    }
+}

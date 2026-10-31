@@ -1,0 +1,24 @@
+{
+    "name": "ninho-api",
+    "version": "1.0.0",
+    "private": true,
+    "main": "dist/app.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/app.js",
+        "dev": "node --watch --require ts-node/register src/app.ts",
+        "test": "tsc && node --test dist/",
+        "users:save": "ts-node src/scripts/saveUser.ts"
+    },
+    "dependencies": {
+        "cookie-parser": "^1.4.7",
+        "express": "^5.3.0"
+    },
+    "devDependencies": {
+        "@types/cookie-parser": "^1.4.10",
+        "@types/express": "^5.0.6",
+        "@types/node": "^26.6.6",
+        "ts-node": "^10.9.2",
+        "typescript": "~6.0.3"
+    }
+}
