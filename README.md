@@ -1,24 +1,48 @@
 # Ninho
 
-Shared to-do lists with repeating chores, a shopping list sorted by supermarket (with photos and tags), recipes with tags and photos, and a home calendar. Runs on the home server, reached over the home network or Tailscale.
+A self-hosted household app: shared to-do lists with repeating chores, a shopping list, recipes and a home calendar, running on your own server for the handful of people you live with.
 
-- `api/`: Express 5 + TypeScript, SQLite through Node's built-in `node:sqlite`, raw SQL, migrations in `api/migrations` (applied on startup).
-- `web/`: React 19 + Vite + TanStack Query + React Router + CSS Modules.
-- One container: the API serves the built web app. Changes reach the other phone live through server-sent events (`/api/live`).
+*Ninho* is Portuguese for "nest".
 
-## Deploy
+## What's in it
 
-Every push to `main` publishes `ghcr.io/aamadeira/ninho` for x86 and ARM. The server only needs [docker-compose.yml](docker-compose.yml):
+- **To-dos**: as many lists as you like. Give a to-do to someone, set a due date, or make it repeat ("vacuum every 2 weeks") and it comes back on its own.
+- **Shopping**: items with a supermarket, tags and a photo. Tick them into the cart while you shop, tap "Done shopping", and they move to your inventory. When something runs out, untick it and it's back on the list. Things you only buy once disappear after shopping.
+- **Recipes**: ingredients, steps, tags, a photo and the link it came from.
+- **Calendar**: the household's events, each one a tap away from Google Calendar or Apple Calendar.
+
+Changes show up on everyone's phone straight away. Tabs you don't need can be turned off.
+
+## How it works
+
+- **Yours.** One Docker container and one SQLite file on your own machine. No cloud account, no email, no tracking.
+- **For one household.** The first person to open Ninho looks after it and adds everyone else with a name and a password. There is no sign-up page.
+- **Made for phones.** Add it to the home screen and it opens like an app. It works on a computer too.
+- **Runs on small hardware.** Images for x86 and ARM64 (a Raspberry Pi with a 64-bit OS will do). It's meant for your home network or a VPN like Tailscale.
+
+## Install
+
+You need Docker with Compose. On your server:
 
 ```sh
+mkdir ninho && cd ninho
+curl -O https://raw.githubusercontent.com/aamadeira/ninho/main/docker-compose.yml
 docker compose up -d
 ```
 
-To update: `docker compose pull && docker compose up -d`. Migrations run on startup. To run your own changes from a clone instead: `docker compose up -d --build`.
+Set `TZ` in `docker-compose.yml` to your timezone first (see [Configure](#configure)).
 
-Open `http://<server>:8090`. The first person to open it creates their account and looks after this Ninho; from the **Ninho** page they add everyone else with a name and a first password. Nobody else can sign up.
+Open `http://<server>:8090`. The first person to open it creates their account; from the **Ninho** page they add everyone else with a name and a first password.
 
-On the phones: Share → Add to Home Screen.
+On the phones: Share → Add to Home Screen on an iPhone, or the browser menu → Add to Home screen on Android.
+
+## Update
+
+```sh
+docker compose pull && docker compose up -d
+```
+
+Database changes are applied on startup; your data stays in the `ninho-data` volume.
 
 ## Configure
 
@@ -40,15 +64,23 @@ docker compose exec ninho node dist/scripts/saveUser.js "Their name" 'a new long
 
 With a name that doesn't exist yet, it adds that person instead.
 
-## Data
+## Back up
 
-Everything lives in the `ninho-data` volume (one SQLite file). To back it up:
+Everything lives in the `ninho-data` volume (one SQLite file):
 
 ```sh
 docker compose stop && docker compose cp ninho:/srv/ninho/data ./ninho-backup && docker compose start
 ```
 
+## HTTPS
+
+Plain HTTP is fine on the home network and over Tailscale. If you later put it behind HTTPS (for example `tailscale serve`), set `SECURE_COOKIE=true` on the container.
+
 ## Develop
+
+- `api/`: Express 5 + TypeScript, SQLite through Node's built-in `node:sqlite`, raw SQL, migrations in `api/migrations` (applied on startup).
+- `web/`: React 19 + Vite + TanStack Query + React Router + CSS Modules.
+- One container: the API serves the built web app and pushes changes to every open app through server-sent events (`/api/live`).
 
 ```sh
 cd api && npm install
@@ -58,8 +90,8 @@ cd web && npm install
 npm run dev        # http://localhost:5173, proxies /api and /auth to :3000
 ```
 
-`cd api && npm test` runs the calendar export and repeating to-do tests.
+`cd api && npm test` runs the calendar export and repeating to-do tests. To run your changes in Docker, `docker compose up -d --build` from a clone builds the image locally. Every push to `main` publishes `ghcr.io/aamadeira/ninho`.
 
-## HTTPS
+## License
 
-Plain HTTP is fine on the home network and over Tailscale. If you later put it behind HTTPS (for example `tailscale serve`), set `SECURE_COOKIE=true` on the container.
+[MIT](LICENSE)
