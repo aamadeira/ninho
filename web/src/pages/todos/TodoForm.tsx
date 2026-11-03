@@ -7,6 +7,7 @@ import { todayIsoDate } from "../../lib/dates";
 import { useDeleteTodo, useUpdateTodo } from "../../lib/queries";
 import type { RepeatUnit, Todo, TodoRepeat, User } from "../../lib/types";
 import { describeSchedule, describeUnit, repeatUnits } from "./todoSchedule";
+import { useTranslation } from "../../lib/i18n";
 import styles from "../Form.module.css";
 
 interface TodoFormProps {
@@ -46,6 +47,8 @@ function toRepeat(unit: RepeatUnit | "", everyText: string): TodoRepeat | null {
 }
 
 export function TodoForm({ todo, listNames, users, onDone }: TodoFormProps) {
+    const translator = useTranslation();
+    const { t } = translator;
     const updateTodo = useUpdateTodo();
     const deleteTodo = useDeleteTodo();
     const [title, setTitle] = useState(todo.title);
@@ -78,18 +81,18 @@ export function TodoForm({ todo, listNames, users, onDone }: TodoFormProps) {
 
     return (
         <form className={styles.form} onSubmit={submit}>
-            <TextField label="What" autoComplete="off" value={title} onChange={(event) => setTitle(event.target.value)} maxLength={200} required />
+            <TextField label={t("common.what")} autoComplete="off" value={title} onChange={(event) => setTitle(event.target.value)} maxLength={200} required />
 
             <div className={styles.row}>
-                <SelectField label="List" value={listName} onChange={(event) => setListName(event.target.value)}>
+                <SelectField label={t("todos.list")} value={listName} onChange={(event) => setListName(event.target.value)}>
                     {listNames.map((name) => (
                         <option key={name} value={name}>
                             {name}
                         </option>
                     ))}
                 </SelectField>
-                <SelectField label="Who's on it" value={assigneeValue} onChange={(event) => setAssigneeValue(event.target.value)}>
-                    <option value="">Anyone</option>
+                <SelectField label={t("todos.assignee")} value={assigneeValue} onChange={(event) => setAssigneeValue(event.target.value)}>
+                    <option value="">{t("todos.anyone")}</option>
                     {users.map((user) => (
                         <option key={user.id} value={String(user.id)}>
                             {user.name}
@@ -98,14 +101,14 @@ export function TodoForm({ todo, listNames, users, onDone }: TodoFormProps) {
                 </SelectField>
             </div>
 
-            <TextField label={repeat ? "Next time" : "When"} type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} required={repeat !== null} />
+            <TextField label={repeat ? t("todos.nextTimeField") : t("todos.when")} type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} required={repeat !== null} />
 
             <fieldset className={styles.fieldset}>
-                <legend className={styles.legend}>{repeat ? "Repeat every" : "Repeats"}</legend>
+                <legend className={styles.legend}>{repeat ? t("todos.repeatEvery") : t("todos.repeats")}</legend>
                 <div className={repeat ? styles.repeatFields : undefined}>
                     {repeat && (
                         <TextField
-                            label="How many"
+                            label={t("todos.howMany")}
                             isLabelHidden
                             type="number"
                             inputMode="numeric"
@@ -116,21 +119,21 @@ export function TodoForm({ todo, listNames, users, onDone }: TodoFormProps) {
                             required
                         />
                     )}
-                    <SelectField label="Unit" isLabelHidden value={repeatUnit} onChange={(event) => changeRepeatUnit(event.target.value as RepeatUnit | "")}>
-                        <option value="">Never</option>
+                    <SelectField label={t("todos.unit")} isLabelHidden value={repeatUnit} onChange={(event) => changeRepeatUnit(event.target.value as RepeatUnit | "")}>
+                        <option value="">{t("todos.never")}</option>
                         {repeatUnits.map((unit) => (
                             <option key={unit} value={unit}>
-                                {describeUnit(unit, repeat?.every ?? 1)}
+                                {describeUnit(unit, repeat?.every ?? 1, translator)}
                             </option>
                         ))}
                     </SelectField>
                 </div>
             </fieldset>
-            <p className={styles.hint}>{describeSchedule(repeat, dueDate)}</p>
+            <p className={styles.hint}>{describeSchedule(repeat, dueDate, translator)}</p>
 
             <div className={[styles.actions, styles.spread].join(" ")}>
                 <DeleteButton isPending={deleteTodo.isPending} onConfirm={remove} />
-                <Button type="submit">Save</Button>
+                <Button type="submit">{t("common.save")}</Button>
             </div>
         </form>
     );

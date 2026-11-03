@@ -3,6 +3,7 @@ import { Button } from "../../components/Button";
 import { PlusIcon } from "../../components/icons/Icons";
 import { Notice } from "../../components/Notice";
 import { PageHeader } from "../../components/PageHeader";
+import { SelectField } from "../../components/SelectField";
 import { Sheet } from "../../components/Sheet";
 import { Toast } from "../../components/Toast";
 import { useMe, useUsers } from "../../lib/queries";
@@ -10,25 +11,27 @@ import type { User } from "../../lib/types";
 import { AddPersonForm } from "./AddPersonForm";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import { PersonForm } from "./PersonForm";
+import { languageNames, languages, useTranslation, type LanguageChoice, type Translate } from "../../lib/i18n";
 import pageStyles from "../Page.module.css";
 import styles from "./NinhoPage.module.css";
 
 type SheetState = { mode: "closed" } | { mode: "add" } | { mode: "person"; userId: number } | { mode: "password" };
 
-function describePerson(person: User, myUserId: number | undefined): string {
+function describePerson(person: User, myUserId: number | undefined, t: Translate): string {
     const parts: string[] = [];
     if (person.id === myUserId) {
-        parts.push("You");
+        parts.push(t("ninho.you"));
     }
 
     if (person.isAdmin) {
-        parts.push("Looks after this Ninho");
+        parts.push(t("navigation.admin"));
     }
 
     return parts.join(" · ");
 }
 
 export function NinhoPage() {
+    const { t, choice, changeChoice } = useTranslation();
     const me = useMe();
     const usersQuery = useUsers();
     const [sheet, setSheet] = useState<SheetState>({ mode: "closed" });
@@ -56,16 +59,16 @@ export function NinhoPage() {
     const addButton = (
         <Button onClick={() => setSheet({ mode: "add" })}>
             <PlusIcon size={18} />
-            Add someone
+            {t("ninho.addSomeone")}
         </Button>
     );
 
     return (
         <>
-            <PageHeader title="Ninho" subtitle="Everyone who can sign in to this Ninho." action={isAdmin ? addButton : undefined} />
+            <PageHeader title={t("ninho.title")} subtitle={t("ninho.subtitle")} action={isAdmin ? addButton : undefined} />
 
-            {usersQuery.isPending && <p className={pageStyles.status}>Loading…</p>}
-            {usersQuery.isError && <Notice>Couldn't load who's in this Ninho.</Notice>}
+            {usersQuery.isPending && <p className={pageStyles.status}>{t("common.loading")}</p>}
+            {usersQuery.isError && <Notice>{t("ninho.loadError")}</Notice>}
 
             <ul className={styles.people}>
                 {users.map((person) => (
@@ -75,38 +78,48 @@ export function NinhoPage() {
                         </span>
                         <span className={styles.details}>
                             <span className={styles.name}>{person.name}</span>
-                            <span className={styles.role}>{describePerson(person, me.data?.id)}</span>
+                            <span className={styles.role}>{describePerson(person, me.data?.id, t)}</span>
                         </span>
                         {isAdmin && person.id !== me.data?.id && (
-                            <Button variant="secondary" onClick={() => setSheet({ mode: "person", userId: person.id })} aria-label={`Manage ${person.name}`}>
-                                Manage
+                            <Button variant="secondary" onClick={() => setSheet({ mode: "person", userId: person.id })} aria-label={t("ninho.managePerson", { name: person.name })}>
+                                {t("ninho.manage")}
                             </Button>
                         )}
                     </li>
                 ))}
             </ul>
 
-            {!isAdmin && admins.length > 0 && <p className={styles.note}>Ask {admins[0].name} to add someone or to reset a forgotten password.</p>}
-            {isAdmin && users.length === 1 && <p className={styles.note}>It's just you for now. Add the people you live with so you can share lists and split the chores.</p>}
+            {!isAdmin && admins.length > 0 && <p className={styles.note}>{t("ninho.askAdmin", { name: admins[0].name })}</p>}
+            {isAdmin && users.length === 1 && <p className={styles.note}>{t("ninho.justYou")}</p>}
 
-            <h2 className={pageStyles.sectionTitle}>Your account</h2>
+            <h2 className={pageStyles.sectionTitle}>{t("ninho.yourAccount")}</h2>
             <div className={styles.account}>
-                <p className={pageStyles.muted}>You're signed in as {me.data?.name}.</p>
+                <p className={pageStyles.muted}>{t("ninho.signedInAs", { name: me.data?.name ?? "" })}</p>
                 <Button variant="secondary" onClick={() => setSheet({ mode: "password" })}>
-                    Change password
+                    {t("ninho.changePassword")}
                 </Button>
             </div>
+            <div className={styles.language}>
+                <SelectField label={t("ninho.language")} value={choice} onChange={(event) => changeChoice(event.target.value as LanguageChoice)}>
+                    <option value="auto">{t("ninho.languageAuto")}</option>
+                    {languages.map((language) => (
+                        <option key={language} value={language} lang={language}>
+                            {languageNames[language]}
+                        </option>
+                    ))}
+                </SelectField>
+            </div>
 
-            <Sheet title="Add someone" isOpen={sheet.mode === "add"} onClose={closeSheet}>
-                <AddPersonForm onAdded={(name) => finish(`${name} can sign in now.`)} />
+            <Sheet title={t("ninho.addSomeone")} isOpen={sheet.mode === "add"} onClose={closeSheet}>
+                <AddPersonForm onAdded={(name) => finish(t("ninho.canSignIn", { name }))} />
             </Sheet>
 
             <Sheet title={selectedPerson?.name ?? ""} isOpen={sheet.mode === "person" && selectedPerson !== undefined} onClose={closeSheet}>
                 {selectedPerson && <PersonForm key={selectedPerson.id} person={selectedPerson} onDone={finish} />}
             </Sheet>
 
-            <Sheet title="Change password" isOpen={sheet.mode === "password"} onClose={closeSheet}>
-                <ChangePasswordForm onChanged={() => finish("Password changed.")} />
+            <Sheet title={t("ninho.changePassword")} isOpen={sheet.mode === "password"} onClose={closeSheet}>
+                <ChangePasswordForm onChanged={() => finish(t("ninho.passwordChanged"))} />
             </Sheet>
 
             {message && <Toast message={message} onDismiss={dismissMessage} />}

@@ -2,6 +2,7 @@ import { useId, useRef, useState, type KeyboardEvent, type MouseEvent } from "re
 import { filterSuggestions, normalizeTag } from "../lib/tags";
 import { CloseIcon } from "./icons/Icons";
 import { Suggestions } from "./Suggestions";
+import { useTranslation } from "../lib/i18n";
 import textFieldStyles from "./TextField.module.css";
 import styles from "./TagsField.module.css";
 
@@ -17,6 +18,7 @@ interface TagsFieldProps {
 const maxTagLength = 30;
 
 export function TagsField({ label, hint, tags, suggestions, maxTags, onChange }: TagsFieldProps) {
+    const { t } = useTranslation();
     const inputId = useId();
     const hintId = `${inputId}-hint`;
     const inputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +87,7 @@ export function TagsField({ label, hint, tags, suggestions, maxTags, onChange }:
 
     let placeholder = "";
     if (tags.length === 0) {
-        placeholder = "Type a tag…";
+        placeholder = t("tags.placeholder");
     }
 
     return (
@@ -96,7 +98,7 @@ export function TagsField({ label, hint, tags, suggestions, maxTags, onChange }:
                 </label>
                 <div className={styles.box} onClick={focusInput}>
                     {tags.map((tag) => (
-                        <button key={tag} type="button" className={styles.pill} aria-label={`Remove ${tag}`} onClick={() => onChange(tags.filter((otherTag) => otherTag !== tag))}>
+                        <button key={tag} type="button" className={styles.pill} aria-label={t("tags.remove", { tag })} onClick={() => onChange(tags.filter((otherTag) => otherTag !== tag))}>
                             {tag}
                             <CloseIcon size={14} />
                         </button>
@@ -124,7 +126,7 @@ export function TagsField({ label, hint, tags, suggestions, maxTags, onChange }:
                     </p>
                 )}
             </div>
-            <Suggestions label={`${label} used before`} options={visibleSuggestions} onPick={pickSuggestion} />
+            <Suggestions label={t("tags.usedBefore", { label })} options={visibleSuggestions} onPick={pickSuggestion} />
         </div>
     );
 }

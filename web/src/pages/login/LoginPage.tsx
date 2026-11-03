@@ -4,9 +4,11 @@ import { Notice } from "../../components/Notice";
 import { useMe, useSetupStatus } from "../../lib/queries";
 import { SetupForm } from "./SetupForm";
 import { SignInForm } from "./SignInForm";
+import { useTranslation } from "../../lib/i18n";
 import styles from "./LoginPage.module.css";
 
 export function LoginPage() {
+    const { t } = useTranslation();
     const me = useMe();
     const setupStatus = useSetupStatus();
 
@@ -20,18 +22,18 @@ export function LoginPage() {
                 <Logo size="lg" />
                 {setupStatus.data === true && (
                     <>
-                        <h1 className={styles.welcome}>Welcome home</h1>
-                        <p className={styles.tagline}>Create the first account. You'll look after this Ninho and can invite the rest of your household.</p>
+                        <h1 className={styles.welcome}>{t("login.welcome")}</h1>
+                        <p className={styles.tagline}>{t("login.setupText")}</p>
                         <SetupForm />
                     </>
                 )}
                 {setupStatus.data === false && (
                     <>
-                        <p className={styles.tagline}>Lists, recipes and plans for your home.</p>
+                        <p className={styles.tagline}>{t("login.tagline")}</p>
                         <SignInForm />
                     </>
                 )}
-                {setupStatus.isError && <Notice>Couldn't reach Ninho. Check that you're on the home network or Tailscale.</Notice>}
+                {setupStatus.isError && <Notice>{t("common.unreachable")}</Notice>}
             </div>
         </main>
     );

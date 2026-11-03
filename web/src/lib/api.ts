@@ -1,3 +1,5 @@
+import type { Translate, TranslationKey } from "./i18n";
+
 export class ApiError extends Error {
     status: number;
     code: string | null;
@@ -41,7 +43,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
     if (!response.ok) {
         const code = payload?.internalErrorCode ?? null;
-        const description = payload?.description ?? "Something went wrong. Please try again.";
+        const description = payload?.description ?? `Request failed with status ${response.status}`;
         throw new ApiError(response.status, code, description);
     }
 
@@ -56,10 +58,44 @@ export function isApiError(error: unknown, status?: number): error is ApiError {
     return status === undefined || error.status === status;
 }
 
-export function getErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-        return error.message;
+const errorKeysByCode: Record<string, TranslationKey> = {
+    "INVALID-CREDENTIALS": "errors.wrongNameOrPassword",
+    "NOT-ADMIN": "errors.notAdmin",
+    "ALREADY-SET-UP": "errors.alreadySetUp",
+    "NAME-TAKEN": "errors.nameTaken",
+    "WRONG-PASSWORD": "errors.wrongCurrentPassword",
+    "INVALID-PASSWORD": "errors.passwordTooShort",
+    "LIST-EXISTS": "errors.listExists",
+    "IMAGE-TOO-LARGE": "errors.tooLarge",
+    "TOO-LARGE": "errors.tooLarge",
+    "NOT-AUTHENTICATED": "errors.signedOut"
+};
+
+function getErrorKey(code: string | null): TranslationKey {
+    if (code === null) {
+        return "errors.generic";
     }
 
-    return "Something went wrong. Please try again.";
+    const knownKey = errorKeysByCode[code];
+    if (knownKey) {
+        return knownKey;
+    }
+
+    if (code.endsWith("NOT-FOUND")) {
+        return "errors.notFound";
+    }
+
+    if (code.startsWith("INVALID-")) {
+        return "errors.invalid";
+    }
+
+    return "errors.generic";
+}
+
+export function getErrorMessage(error: unknown, t: Translate): string {
+    if (error instanceof ApiError) {
+        return t(getErrorKey(error.code));
+    }
+
+    return t("errors.generic");
 }

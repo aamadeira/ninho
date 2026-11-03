@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
 import { TrashIcon } from "./icons/Icons";
+import { useTranslation } from "../lib/i18n";
 
 interface DeleteButtonProps {
     isPending: boolean;
@@ -11,7 +12,8 @@ interface DeleteButtonProps {
 
 const confirmationWindowInMilliseconds = 4000;
 
-export function DeleteButton({ isPending, label = "Delete", confirmLabel = "Tap again to delete", onConfirm }: DeleteButtonProps) {
+export function DeleteButton({ isPending, label, confirmLabel, onConfirm }: DeleteButtonProps) {
+    const { t } = useTranslation();
     const [isConfirming, setIsConfirming] = useState(false);
 
     useEffect(() => {
@@ -26,7 +28,7 @@ export function DeleteButton({ isPending, label = "Delete", confirmLabel = "Tap 
     if (isConfirming) {
         return (
             <Button variant="danger" onClick={onConfirm} disabled={isPending}>
-                {confirmLabel}
+                {confirmLabel ?? t("common.tapAgainToDelete")}
             </Button>
         );
     }
@@ -34,7 +36,7 @@ export function DeleteButton({ isPending, label = "Delete", confirmLabel = "Tap 
     return (
         <Button variant="ghost" onClick={() => setIsConfirming(true)}>
             <TrashIcon size={18} />
-            {label}
+            {label ?? t("common.delete")}
         </Button>
     );
 }

@@ -9,10 +9,12 @@ import { useDeleteRecipe, useRecipes } from "../../lib/queries";
 import { RecipeForm } from "./RecipeForm";
 import { splitLines } from "../../lib/entries";
 import { getAllTags, sortIngredients } from "./recipeText";
+import { useTranslation } from "../../lib/i18n";
 import pageStyles from "../Page.module.css";
 import styles from "./RecipePage.module.css";
 
 export function RecipePage() {
+    const { t } = useTranslation();
     const { recipeId } = useParams();
     const navigate = useNavigate();
     const recipesQuery = useRecipes();
@@ -22,11 +24,11 @@ export function RecipePage() {
     const recipe = recipesQuery.data?.find((candidate) => String(candidate.id) === recipeId);
 
     if (recipesQuery.isPending) {
-        return <p className={pageStyles.status}>Loading…</p>;
+        return <p className={pageStyles.status}>{t("common.loading")}</p>;
     }
 
     if (!recipe) {
-        return <Notice>That recipe doesn't exist anymore.</Notice>;
+        return <Notice>{t("recipes.missing")}</Notice>;
     }
 
     const ingredients = sortIngredients(splitLines(recipe.ingredients));
@@ -36,7 +38,7 @@ export function RecipePage() {
         <article>
             <Link to="/recipes" className={styles.back}>
                 <ArrowLeftIcon size={18} />
-                Recipes
+                {t("recipes.title")}
             </Link>
 
             {recipe.image && <img src={recipe.image.url} alt="" className={styles.hero} />}
@@ -55,15 +57,15 @@ export function RecipePage() {
 
             {recipe.link && (
                 <a href={recipe.link} className={styles.source} target="_blank" rel="noopener noreferrer">
-                    Open the original recipe
+                    {t("recipes.openOriginal")}
                     <ExternalIcon size={16} />
                 </a>
             )}
 
             <div className={styles.columns}>
                 <section className={styles.panel}>
-                    <h2 className={styles.heading}>Ingredients</h2>
-                    {ingredients.length === 0 && <p className={pageStyles.muted}>No ingredients written down.</p>}
+                    <h2 className={styles.heading}>{t("recipes.ingredients")}</h2>
+                    {ingredients.length === 0 && <p className={pageStyles.muted}>{t("recipes.noIngredients")}</p>}
                     <ul className={styles.ingredients}>
                         {ingredients.map((ingredient, index) => (
                             <li key={index}>{ingredient}</li>
@@ -72,8 +74,8 @@ export function RecipePage() {
                 </section>
 
                 <section className={styles.panel}>
-                    <h2 className={styles.heading}>Steps</h2>
-                    {steps.length === 0 && <p className={pageStyles.muted}>No steps written down.</p>}
+                    <h2 className={styles.heading}>{t("recipes.steps")}</h2>
+                    {steps.length === 0 && <p className={pageStyles.muted}>{t("recipes.noSteps")}</p>}
                     <ol className={styles.steps}>
                         {steps.map((step, index) => (
                             <li key={index}>{step}</li>
@@ -86,11 +88,11 @@ export function RecipePage() {
                 <DeleteButton isPending={deleteRecipe.isPending} onConfirm={() => deleteRecipe.mutate(recipe.id, { onSuccess: () => navigate("/recipes") })} />
                 <Button variant="secondary" onClick={() => setIsEditing(true)}>
                     <PencilIcon size={18} />
-                    Edit
+                    {t("common.edit")}
                 </Button>
             </div>
 
-            <Sheet title="Edit recipe" isOpen={isEditing} onClose={() => setIsEditing(false)}>
+            <Sheet title={t("recipes.editTitle")} isOpen={isEditing} onClose={() => setIsEditing(false)}>
                 <RecipeForm key={recipe.id} recipe={recipe} knownTags={getAllTags(recipesQuery.data ?? [])} onSaved={() => setIsEditing(false)} onCancel={() => setIsEditing(false)} />
             </Sheet>
         </article>

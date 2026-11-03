@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CheckIcon, PencilIcon } from "./icons/Icons";
+import { useTranslation } from "../lib/i18n";
 import styles from "./CheckRow.module.css";
 
 interface CheckRowProps {
@@ -13,6 +14,8 @@ interface CheckRowProps {
 }
 
 export function CheckRow({ label, detail, isDone, thumbnailUrl, onToggle, onEdit, onOpenImage }: CheckRowProps) {
+    const { t } = useTranslation();
+
     return (
         <li className={[styles.row, isDone ? styles.done : ""].filter(Boolean).join(" ")}>
             <label className={styles.label}>
@@ -26,11 +29,11 @@ export function CheckRow({ label, detail, isDone, thumbnailUrl, onToggle, onEdit
                 </span>
             </label>
             {thumbnailUrl && (
-                <button type="button" className={styles.thumbnail} aria-label={`Show the photo of ${label}`} onClick={onOpenImage}>
+                <button type="button" className={styles.thumbnail} aria-label={t("rows.showPhoto", { name: label })} onClick={onOpenImage}>
                     <img src={thumbnailUrl} alt="" width={44} height={44} loading="lazy" decoding="async" />
                 </button>
             )}
-            <button type="button" className={styles.edit} aria-label={`Edit ${label}`} onClick={onEdit}>
+            <button type="button" className={styles.edit} aria-label={t("rows.edit", { name: label })} onClick={onEdit}>
                 <PencilIcon size={18} />
             </button>
         </li>

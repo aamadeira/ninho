@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "../../components/icons/Icons";
-import { addMonths, formatLongDate, formatMonth, getLeadingBlankDays, getMonthDays, getMonthStart, todayIsoDate, weekdayInitials } from "../../lib/dates";
+import { addMonths, formatLongDate, formatMonth, getLeadingBlankDays, getMonthDays, getMonthStart, getWeekdayInitials, todayIsoDate } from "../../lib/dates";
+import { useTranslation } from "../../lib/i18n";
 import styles from "./MonthGrid.module.css";
 
 interface MonthGridProps {
@@ -11,6 +12,7 @@ interface MonthGridProps {
 }
 
 export function MonthGrid({ month, selectedDate, datesWithEvents, onSelectDate, onChangeMonth }: MonthGridProps) {
+    const { t, locale } = useTranslation();
     const today = todayIsoDate();
     const leadingBlankDays = Array.from({ length: getLeadingBlankDays(month) }, (_, index) => index);
 
@@ -31,24 +33,24 @@ export function MonthGrid({ month, selectedDate, datesWithEvents, onSelectDate, 
     }
 
     return (
-        <section className={styles.calendar} aria-label="Month">
+        <section className={styles.calendar} aria-label={t("calendar.month")}>
             <header className={styles.header}>
                 <h2 className={styles.month} aria-live="polite">
-                    {formatMonth(month)}
+                    {formatMonth(month, locale)}
                 </h2>
                 <button type="button" className={styles.todayButton} onClick={goToToday}>
-                    Today
+                    {t("common.today")}
                 </button>
-                <button type="button" className={styles.navButton} aria-label="Previous month" onClick={() => onChangeMonth(addMonths(month, -1))}>
+                <button type="button" className={styles.navButton} aria-label={t("calendar.previousMonth")} onClick={() => onChangeMonth(addMonths(month, -1))}>
                     <ChevronLeftIcon />
                 </button>
-                <button type="button" className={styles.navButton} aria-label="Next month" onClick={() => onChangeMonth(addMonths(month, 1))}>
+                <button type="button" className={styles.navButton} aria-label={t("calendar.nextMonth")} onClick={() => onChangeMonth(addMonths(month, 1))}>
                     <ChevronRightIcon />
                 </button>
             </header>
 
             <div className={styles.grid}>
-                {weekdayInitials.map((initial, index) => (
+                {getWeekdayInitials(locale).map((initial, index) => (
                     <span key={index} className={styles.weekday} aria-hidden="true">
                         {initial}
                     </span>
@@ -65,7 +67,7 @@ export function MonthGrid({ month, selectedDate, datesWithEvents, onSelectDate, 
                             className={getDayClassName(date)}
                             aria-pressed={date === selectedDate}
                             aria-current={date === today ? "date" : undefined}
-                            aria-label={hasEvents ? `${formatLongDate(date)}, has events` : formatLongDate(date)}
+                            aria-label={hasEvents ? t("calendar.dayWithEvents", { date: formatLongDate(date, locale) }) : formatLongDate(date, locale)}
                             onClick={() => onSelectDate(date)}
                         >
                             {Number(date.slice(8))}

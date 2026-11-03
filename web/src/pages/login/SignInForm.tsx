@@ -5,9 +5,11 @@ import { Notice } from "../../components/Notice";
 import { TextField } from "../../components/TextField";
 import { getErrorMessage } from "../../lib/api";
 import { useSignIn } from "../../lib/queries";
+import { useTranslation } from "../../lib/i18n";
 import styles from "./LoginPage.module.css";
 
 export function SignInForm() {
+    const { t } = useTranslation();
     const signIn = useSignIn();
     const navigate = useNavigate();
     const [name, setName] = useState("");
@@ -20,11 +22,11 @@ export function SignInForm() {
 
     return (
         <form className={styles.form} onSubmit={submit}>
-            <TextField label="Name" autoComplete="username" autoCapitalize="words" value={name} onChange={(event) => setName(event.target.value)} required />
-            <TextField label="Password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
-            {signIn.isError && <Notice>{getErrorMessage(signIn.error)}</Notice>}
+            <TextField label={t("common.name")} autoComplete="username" autoCapitalize="words" value={name} onChange={(event) => setName(event.target.value)} required />
+            <TextField label={t("login.password")} type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+            {signIn.isError && <Notice>{getErrorMessage(signIn.error, t)}</Notice>}
             <Button type="submit" size="lg" disabled={signIn.isPending}>
-                {signIn.isPending ? "Signing in…" : "Sign in"}
+                {signIn.isPending ? t("login.signingIn") : t("login.signIn")}
             </Button>
         </form>
     );

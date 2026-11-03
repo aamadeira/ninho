@@ -1,3 +1,4 @@
+import type { Translate } from "../../lib/i18n";
 import { compareText } from "../../lib/sorting";
 import type { Todo, TodoList } from "../../lib/types";
 
@@ -55,7 +56,7 @@ function compareDueDates(first: Todo, second: Todo): number {
     return compareTitles(first, second);
 }
 
-export function groupTodos(todos: Todo[], listNames: string[], today: string): TodoGroup[] {
+export function groupTodos(todos: Todo[], listNames: string[], today: string, t: Translate): TodoGroup[] {
     const groups: TodoGroup[] = [];
 
     for (const listName of listNames) {
@@ -67,12 +68,12 @@ export function groupTodos(todos: Todo[], listNames: string[], today: string): T
 
     const comingUpTodos = todos.filter((todo) => isComingUp(todo, today)).sort(compareDueDates);
     if (comingUpTodos.length > 0) {
-        groups.push({ title: "Coming up", todos: comingUpTodos, mixesLists: true });
+        groups.push({ title: t("todos.comingUp"), todos: comingUpTodos, mixesLists: true });
     }
 
     const doneTodos = todos.filter((todo) => todo.done && todo.repeat === null).sort(compareTitles);
     if (doneTodos.length > 0) {
-        groups.push({ title: "Done", todos: doneTodos, mixesLists: true });
+        groups.push({ title: t("todos.done"), todos: doneTodos, mixesLists: true });
     }
 
     return groups;

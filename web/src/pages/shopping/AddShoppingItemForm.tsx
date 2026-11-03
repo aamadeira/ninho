@@ -7,6 +7,7 @@ import { TextField } from "../../components/TextField";
 import { getErrorMessage } from "../../lib/api";
 import { useAddShoppingItem } from "../../lib/queries";
 import { filterSuggestions } from "../../lib/tags";
+import { useTranslation } from "../../lib/i18n";
 import styles from "../AddForm.module.css";
 
 interface AddShoppingItemFormProps {
@@ -16,6 +17,7 @@ interface AddShoppingItemFormProps {
 }
 
 export function AddShoppingItemForm({ defaultStore, storeNames, tags }: AddShoppingItemFormProps) {
+    const { t } = useTranslation();
     const addShoppingItem = useAddShoppingItem();
     const [name, setName] = useState("");
     const [store, setStore] = useState(defaultStore ?? "");
@@ -40,22 +42,22 @@ export function AddShoppingItemForm({ defaultStore, storeNames, tags }: AddShopp
         <form className={styles.form} onSubmit={submit}>
             <div className={styles.fields}>
                 <TextField
-                    label="Item"
+                    label={t("shopping.item")}
                     isLabelHidden
                     className={styles.mainField}
-                    placeholder="Add an item…"
+                    placeholder={t("shopping.addPlaceholder")}
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                     autoComplete="off"
                     enterKeyHint="done"
                 />
-                <TextField label="Store" isLabelHidden className={styles.sideField} placeholder="Any store" value={store} onChange={(event) => setStore(event.target.value)} autoComplete="off" />
-                <Button type="submit" size="icon" aria-label="Add item">
+                <TextField label={t("shopping.store")} isLabelHidden className={styles.sideField} placeholder={t("shopping.anyStorePlaceholder")} value={store} onChange={(event) => setStore(event.target.value)} autoComplete="off" />
+                <Button type="submit" size="icon" aria-label={t("shopping.addItem")}>
                     <PlusIcon />
                 </Button>
             </div>
-            <Suggestions label="Stores on the list" options={storeSuggestions} onPick={setStore} />
-            {addShoppingItem.isError && <Notice>{getErrorMessage(addShoppingItem.error)}</Notice>}
+            <Suggestions label={t("shopping.storesOnList")} options={storeSuggestions} onPick={setStore} />
+            {addShoppingItem.isError && <Notice>{getErrorMessage(addShoppingItem.error, t)}</Notice>}
         </form>
     );
 }

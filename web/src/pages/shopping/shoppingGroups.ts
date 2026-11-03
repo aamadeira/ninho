@@ -1,6 +1,7 @@
 import { compareText } from "../../lib/sorting";
 import { collectTags } from "../../lib/tags";
 import type { ShoppingItem } from "../../lib/types";
+import type { Translate } from "../../lib/i18n";
 
 export interface ShoppingGroup {
     title: string;
@@ -36,7 +37,7 @@ export function filterByTags(items: ShoppingItem[], selectedTags: string[]): Sho
     return items.filter((item) => selectedTags.every((tag) => item.tags.includes(tag)));
 }
 
-export function groupShoppingItems(items: ShoppingItem[], storeNames: string[]): ShoppingGroup[] {
+export function groupShoppingItems(items: ShoppingItem[], storeNames: string[], t: Translate): ShoppingGroup[] {
     const groups: ShoppingGroup[] = [];
     const sortedItems = [...items].sort((first, second) => compareText(first.name, second.name));
     const neededItems = sortedItems.filter((item) => item.status === "needed");
@@ -50,17 +51,17 @@ export function groupShoppingItems(items: ShoppingItem[], storeNames: string[]):
 
     const anyStoreItems = neededItems.filter((item) => item.store === null);
     if (anyStoreItems.length > 0) {
-        groups.push({ title: "Any store", items: anyStoreItems, isCart: false });
+        groups.push({ title: t("shopping.anyStore"), items: anyStoreItems, isCart: false });
     }
 
     const cartItems = sortedItems.filter((item) => item.status === "cart");
     if (cartItems.length > 0) {
-        groups.push({ title: "In the cart", items: cartItems, isCart: true });
+        groups.push({ title: t("shopping.inCart"), items: cartItems, isCart: true });
     }
 
     const boughtItems = sortedItems.filter((item) => item.status === "bought");
     if (boughtItems.length > 0) {
-        groups.push({ title: "Inventory", items: boughtItems, isCart: false });
+        groups.push({ title: t("shopping.inventory"), items: boughtItems, isCart: false });
     }
 
     return groups;
@@ -74,23 +75,19 @@ export function countOpenItems(items: ShoppingItem[], storeName: string): number
     return items.filter((item) => item.status === "needed" && item.store === storeName).length;
 }
 
-export function describeCheckout(items: ShoppingItem[]): string {
+export function describeCheckout(items: ShoppingItem[], t: Translate): string {
     const cartItems = items.filter((item) => item.status === "cart");
     const justOnceCount = cartItems.filter((item) => item.buyOnce).length;
     const keptCount = cartItems.length - justOnceCount;
 
-    const parts: string[] = [];
+    const sentences: string[] = [];
     if (keptCount > 0) {
-        parts.push(`${keptCount} moved to Inventory`);
+        sentences.push(t("shopping.movedToInventory", { count: keptCount }));
     }
 
-    if (justOnceCount === 1) {
-        parts.push("1 just once item removed");
+    if (justOnceCount > 0) {
+        sentences.push(t("shopping.justOnceRemoved", { count: justOnceCount }));
     }
 
-    if (justOnceCount > 1) {
-        parts.push(`${justOnceCount} just once items removed`);
-    }
-
-    return `${parts.join(", ")}.`;
+    return sentences.join(" ");
 }

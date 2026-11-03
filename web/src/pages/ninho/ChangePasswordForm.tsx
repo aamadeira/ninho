@@ -4,6 +4,7 @@ import { Notice } from "../../components/Notice";
 import { TextField } from "../../components/TextField";
 import { getErrorMessage } from "../../lib/api";
 import { useChangeOwnPassword } from "../../lib/queries";
+import { useTranslation } from "../../lib/i18n";
 import styles from "../Form.module.css";
 
 interface ChangePasswordFormProps {
@@ -11,6 +12,7 @@ interface ChangePasswordFormProps {
 }
 
 export function ChangePasswordForm({ onChanged }: ChangePasswordFormProps) {
+    const { t } = useTranslation();
     const changeOwnPassword = useChangeOwnPassword();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -22,10 +24,10 @@ export function ChangePasswordForm({ onChanged }: ChangePasswordFormProps) {
 
     return (
         <form className={styles.form} onSubmit={submit}>
-            <TextField label="Current password" type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} data-autofocus required />
+            <TextField label={t("ninho.currentPassword")} type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} data-autofocus required />
             <TextField
-                label="New password"
-                hint="At least 8 characters. Your other devices get signed out."
+                label={t("ninho.newPassword")}
+                hint={t("ninho.newPasswordHint")}
                 type="password"
                 autoComplete="new-password"
                 minLength={8}
@@ -33,10 +35,10 @@ export function ChangePasswordForm({ onChanged }: ChangePasswordFormProps) {
                 onChange={(event) => setNewPassword(event.target.value)}
                 required
             />
-            {changeOwnPassword.isError && <Notice>{getErrorMessage(changeOwnPassword.error)}</Notice>}
+            {changeOwnPassword.isError && <Notice>{getErrorMessage(changeOwnPassword.error, t)}</Notice>}
             <div className={styles.actions}>
                 <Button type="submit" disabled={changeOwnPassword.isPending}>
-                    {changeOwnPassword.isPending ? "Saving…" : "Change password"}
+                    {changeOwnPassword.isPending ? t("common.saving") : t("ninho.changePassword")}
                 </Button>
             </div>
         </form>

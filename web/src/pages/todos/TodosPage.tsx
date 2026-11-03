@@ -19,6 +19,7 @@ import { NewListForm } from "./NewListForm";
 import { TodoForm } from "./TodoForm";
 import { TodoMeta } from "./TodoMeta";
 import { countOpenTodos, getListNames, groupTodos, matchesFilter, type TodoFilter } from "./todoGroups";
+import { useTranslation, type Translate } from "../../lib/i18n";
 import styles from "../Page.module.css";
 
 type SheetState = { mode: "closed" } | { mode: "newList" } | { mode: "edit"; todoId: number };
@@ -30,32 +31,29 @@ interface RepeatToast {
     nextDueDate: string;
 }
 
-function describeListDeletion(todoCount: number): string {
+function describeListDeletion(todoCount: number, t: Translate): string {
     if (todoCount === 0) {
-        return "Tap again to delete";
+        return t("common.tapAgainToDelete");
     }
 
-    if (todoCount === 1) {
-        return "Tap again: its 1 to-do goes too";
-    }
-
-    return `Tap again: its ${todoCount} to-dos go too`;
+    return t("todos.deleteListWithTodos", { count: todoCount });
 }
 
-function getSummary(todos: Todo[], today: string): string | undefined {
+function getSummary(todos: Todo[], today: string, t: Translate): string | undefined {
     if (todos.length === 0) {
         return undefined;
     }
 
     const openCount = countOpenTodos(todos, today);
     if (openCount === 0) {
-        return "All done. Nice.";
+        return t("todos.allDone");
     }
 
-    return `${openCount} still to do`;
+    return t("todos.stillToDo", { count: openCount });
 }
 
 export function TodosPage() {
+    const { t, locale } = useTranslation();
     const me = useMe();
     const todosQuery = useTodos();
     const usersQuery = useUsers();
@@ -76,7 +74,7 @@ export function TodosPage() {
     const lists = todoListsQuery.data ?? [];
     const listNames = getListNames(lists, todos);
     const visibleTodos = todos.filter((todo) => matchesFilter(todo, filter, myUserId));
-    const groups = groupTodos(visibleTodos, listNames, today);
+    const groups = groupTodos(visibleTodos, listNames, today, t);
     const doneCount = todos.filter((todo) => todo.done && todo.repeat === null).length;
     const myTodos = todos.filter((todo) => matchesFilter(todo, { kind: "mine" }, myUserId));
 
@@ -149,39 +147,39 @@ export function TodosPage() {
 
     return (
         <>
-            <PageHeader title="To-do" subtitle={getSummary(todos, today)} />
+            <PageHeader title={t("todos.title")} subtitle={getSummary(todos, today, t)} />
 
-            <ChipRow label="Lists">
-                <Chip label="All" isSelected={filter.kind === "all"} onClick={() => setFilter({ kind: "all" })} />
-                {users.length > 1 && <Chip label="Mine" count={countOpenTodos(myTodos, today)} isSelected={filter.kind === "mine"} onClick={() => setFilter({ kind: "mine" })} />}
+            <ChipRow label={t("todos.lists")}>
+                <Chip label={t("todos.all")} isSelected={filter.kind === "all"} onClick={() => setFilter({ kind: "all" })} />
+                {users.length > 1 && <Chip label={t("todos.mine")} count={countOpenTodos(myTodos, today)} isSelected={filter.kind === "mine"} onClick={() => setFilter({ kind: "mine" })} />}
                 {listNames.map((listName) => (
                     <Chip key={listName} label={listName} count={countOpenInList(listName)} isSelected={isListSelected(listName)} onClick={() => setFilter({ kind: "list", listName })} />
                 ))}
-                <Chip label="New list" icon={<PlusIcon size={16} />} isDashed onClick={() => setSheet({ mode: "newList" })} />
+                <Chip label={t("todos.newList")} icon={<PlusIcon size={16} />} isDashed onClick={() => setSheet({ mode: "newList" })} />
             </ChipRow>
 
             {filter.kind === "list" && <AddTodoForm key={filter.listName} listName={filter.listName} />}
-            {filter.kind !== "list" && !hasNoLists && <p className={styles.addHint}>Pick a list to add to it.</p>}
+            {filter.kind !== "list" && !hasNoLists && <p className={styles.addHint}>{t("todos.pickList")}</p>}
 
-            {todosQuery.isPending && <p className={styles.status}>Loading…</p>}
-            {todosQuery.isError && <Notice>Couldn't load the to-dos.</Notice>}
+            {todosQuery.isPending && <p className={styles.status}>{t("common.loading")}</p>}
+            {todosQuery.isError && <Notice>{t("todos.loadError")}</Notice>}
             {hasNoLists && (
                 <EmptyState
-                    title="Make your first list"
-                    text="Lists keep things apart, like chores around the house, errands or a trip. Name one and start adding."
+                    title={t("todos.firstListTitle")}
+                    text={t("todos.firstListText")}
                     action={
                         <Button onClick={() => setSheet({ mode: "newList" })}>
                             <PlusIcon size={18} />
-                            New list
+                            {t("todos.newList")}
                         </Button>
                     }
                 />
             )}
             {todosQuery.isSuccess && !hasNoLists && groups.length === 0 && filter.kind !== "mine" && (
-                <EmptyState title="Nothing to do" text="Add something above and it shows up for everyone right away." />
+                <EmptyState title={t("todos.emptyTitle")} text={t("todos.emptyText")} />
             )}
             {todosQuery.isSuccess && !hasNoLists && groups.length === 0 && filter.kind === "mine" && (
-                <EmptyState title="Nothing on your plate" text="To-dos someone puts in your name show up here. Open one and pick who's on it." />
+                <EmptyState title={t("todos.emptyMineTitle")} text={t("todos.emptyMineText")} />
             )}
 
             {groups.map((group) => (
@@ -203,13 +201,13 @@ export function TodosPage() {
                 <div className={styles.footerAction}>
                     {doneCount > 0 && (
                         <Button variant="ghost" onClick={() => clearDoneTodos.mutate()}>
-                            Clear {doneCount} done
+                            {t("todos.clearDone", { count: doneCount })}
                         </Button>
                     )}
                     {canDeleteSelectedList && selectedList && (
                         <DeleteButton
-                            label={`Delete ${selectedList.name}`}
-                            confirmLabel={describeListDeletion(todos.filter((todo) => todo.listName === selectedList.name).length)}
+                            label={t("todos.deleteList", { name: selectedList.name })}
+                            confirmLabel={describeListDeletion(todos.filter((todo) => todo.listName === selectedList.name).length, t)}
                             isPending={deleteTodoList.isPending}
                             onConfirm={() => deleteList(selectedList)}
                         />
@@ -217,19 +215,19 @@ export function TodosPage() {
                 </div>
             )}
 
-            <Sheet title="New list" isOpen={sheet.mode === "newList"} onClose={() => setSheet({ mode: "closed" })}>
+            <Sheet title={t("todos.newList")} isOpen={sheet.mode === "newList"} onClose={() => setSheet({ mode: "closed" })}>
                 <NewListForm onCreate={createList} />
             </Sheet>
 
-            <Sheet title="Edit to-do" isOpen={sheet.mode === "edit" && editingTodo !== undefined} onClose={() => setSheet({ mode: "closed" })}>
+            <Sheet title={t("todos.editTitle")} isOpen={sheet.mode === "edit" && editingTodo !== undefined} onClose={() => setSheet({ mode: "closed" })}>
                 {editingTodo && <TodoForm key={editingTodo.id} todo={editingTodo} listNames={listNames} users={users} onDone={() => setSheet({ mode: "closed" })} />}
             </Sheet>
 
             {toast && (
                 <Toast
                     key={toast.todoId}
-                    message={`${toast.title}: next time is ${formatShortDate(toast.nextDueDate)}.`}
-                    actionLabel="Undo"
+                    message={t("todos.nextTime", { title: toast.title, date: formatShortDate(toast.nextDueDate, locale) })}
+                    actionLabel={t("common.undo")}
                     onAction={() => undoRepeat(toast)}
                     onDismiss={dismissToast}
                 />

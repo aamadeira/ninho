@@ -1,6 +1,7 @@
 import { RepeatIcon } from "../../components/icons/Icons";
 import type { Todo, User } from "../../lib/types";
 import { describeDueDate, describeRepeat } from "./todoSchedule";
+import { useTranslation } from "../../lib/i18n";
 import styles from "./TodoMeta.module.css";
 
 interface TodoMetaProps {
@@ -11,6 +12,7 @@ interface TodoMetaProps {
 }
 
 export function TodoMeta({ todo, assignee, listName, today }: TodoMetaProps) {
+    const translator = useTranslation();
     const openDueDate = todo.done ? null : todo.dueDate;
     const isOverdue = openDueDate !== null && openDueDate < today;
 
@@ -32,10 +34,10 @@ export function TodoMeta({ todo, assignee, listName, today }: TodoMetaProps) {
             {todo.repeat && (
                 <span className={styles.item}>
                     <RepeatIcon size={14} />
-                    {describeRepeat(todo.repeat, todo.dueDate)}
+                    {describeRepeat(todo.repeat, todo.dueDate, translator)}
                 </span>
             )}
-            {openDueDate !== null && <span className={isOverdue ? styles.overdue : undefined}>{describeDueDate(openDueDate, today)}</span>}
+            {openDueDate !== null && <span className={isOverdue ? styles.overdue : undefined}>{describeDueDate(openDueDate, today, translator)}</span>}
         </span>
     );
 }

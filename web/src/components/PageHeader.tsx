@@ -14,7 +14,7 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
                 <h1 className={styles.title}>{title}</h1>
                 {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
             </div>
-            {action}
+            {action && <div className={styles.action}>{action}</div>}
         </header>
     );
 }

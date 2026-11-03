@@ -1,4 +1,4 @@
-const locale = "en-GB";
+import type { Translate } from "./i18n";
 
 function padNumber(value: number): string {
     return String(value).padStart(2, "0");
@@ -30,25 +30,26 @@ export function addMonths(monthStart: Date, amount: number): Date {
     return new Date(monthStart.getFullYear(), monthStart.getMonth() + amount, 1);
 }
 
-export function formatMonth(monthStart: Date): string {
-    return monthStart.toLocaleDateString(locale, { month: "long", year: "numeric" });
+function capitalizeFirstLetter(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-export function formatLongDate(isoDate: string): string {
+export function formatMonth(monthStart: Date, locale: string): string {
+    const monthName = monthStart.toLocaleDateString(locale, { month: "long" });
+    return `${capitalizeFirstLetter(monthName)} ${monthStart.getFullYear()}`;
+}
+
+export function formatLongDate(isoDate: string, locale: string): string {
     return parseIsoDate(isoDate).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" });
 }
 
-export function formatShortDate(isoDate: string): string {
+export function formatShortDate(isoDate: string, locale: string): string {
     return parseIsoDate(isoDate).toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
 }
 
-export function formatWeekday(isoDate: string): string {
-    return parseIsoDate(isoDate).toLocaleDateString(locale, { weekday: "long" });
-}
-
-export function formatTimeRange(startTime: string | null, endTime: string | null): string {
+export function formatTimeRange(startTime: string | null, endTime: string | null, t: Translate): string {
     if (!startTime) {
-        return "All day";
+        return t("calendar.allDay");
     }
 
     if (!endTime) {
@@ -74,4 +75,13 @@ export function getLeadingBlankDays(monthStart: Date): number {
     return (sundayBasedWeekday + 6) % 7;
 }
 
-export const weekdayInitials = ["M", "T", "W", "T", "F", "S", "S"];
+export function getWeekdayInitials(locale: string): string[] {
+    const firstMonday = new Date(2026, 0, 5);
+    const initials: string[] = [];
+    for (let day = 0; day < 7; day++) {
+        const weekday = new Date(firstMonday.getFullYear(), firstMonday.getMonth(), firstMonday.getDate() + day);
+        initials.push(weekday.toLocaleDateString(locale, { weekday: "narrow" }));
+    }
+
+    return initials;
+}

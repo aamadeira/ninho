@@ -2,10 +2,11 @@ import type { ComponentType } from "react";
 import { BasketIcon, BookIcon, CalendarIcon, ChecklistIcon, type IconProps } from "../components/icons/Icons";
 import { useFeatures } from "./queries";
 import type { Feature } from "./types";
+import type { TranslationKey } from "./i18n";
 
 interface NavigationItem {
     feature: Feature;
-    label: string;
+    labelKey: TranslationKey;
     path: string;
     Icon: ComponentType<IconProps>;
 }
@@ -13,10 +14,10 @@ interface NavigationItem {
 export const ninhoPath = "/ninho";
 
 const navigationItems: NavigationItem[] = [
-    { feature: "todos", label: "To-do", path: "/todos", Icon: ChecklistIcon },
-    { feature: "shopping", label: "Shopping", path: "/shopping", Icon: BasketIcon },
-    { feature: "recipes", label: "Recipes", path: "/recipes", Icon: BookIcon },
-    { feature: "calendar", label: "Calendar", path: "/calendar", Icon: CalendarIcon }
+    { feature: "todos", labelKey: "navigation.todos", path: "/todos", Icon: ChecklistIcon },
+    { feature: "shopping", labelKey: "navigation.shopping", path: "/shopping", Icon: BasketIcon },
+    { feature: "recipes", labelKey: "navigation.recipes", path: "/recipes", Icon: BookIcon },
+    { feature: "calendar", labelKey: "navigation.calendar", path: "/calendar", Icon: CalendarIcon }
 ];
 
 export function useNavigationItems(): NavigationItem[] {

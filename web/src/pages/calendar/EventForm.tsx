@@ -6,6 +6,7 @@ import { TextField } from "../../components/TextField";
 import { getErrorMessage } from "../../lib/api";
 import { useSaveEvent } from "../../lib/queries";
 import type { CalendarEvent } from "../../lib/types";
+import { useTranslation } from "../../lib/i18n";
 import styles from "../Form.module.css";
 
 interface EventFormProps {
@@ -16,6 +17,7 @@ interface EventFormProps {
 }
 
 export function EventForm({ event, initialDate, onSaved, onCancel }: EventFormProps) {
+    const { t } = useTranslation();
     const saveEvent = useSaveEvent();
     const [title, setTitle] = useState(event?.title ?? "");
     const [date, setDate] = useState(event?.date ?? initialDate);
@@ -38,24 +40,24 @@ export function EventForm({ event, initialDate, onSaved, onCancel }: EventFormPr
 
     return (
         <form className={styles.form} onSubmit={submit}>
-            <TextField label="What" placeholder="Dinner at your parents'" value={title} onChange={(changeEvent) => setTitle(changeEvent.target.value)} maxLength={120} required data-autofocus={event ? undefined : true} />
-            <TextField label="Day" type="date" value={date} onChange={(changeEvent) => setDate(changeEvent.target.value)} required />
+            <TextField label={t("common.what")} placeholder={t("calendar.whatPlaceholder")} value={title} onChange={(changeEvent) => setTitle(changeEvent.target.value)} maxLength={120} required data-autofocus={event ? undefined : true} />
+            <TextField label={t("calendar.day")} type="date" value={date} onChange={(changeEvent) => setDate(changeEvent.target.value)} required />
             <div className={styles.row}>
-                <TextField label="Starts" type="time" value={startTime} onChange={(changeEvent) => changeStartTime(changeEvent.target.value)} />
-                <TextField label="Ends" type="time" value={endTime} onChange={(changeEvent) => setEndTime(changeEvent.target.value)} disabled={!startTime} />
+                <TextField label={t("calendar.starts")} type="time" value={startTime} onChange={(changeEvent) => changeStartTime(changeEvent.target.value)} />
+                <TextField label={t("calendar.ends")} type="time" value={endTime} onChange={(changeEvent) => setEndTime(changeEvent.target.value)} disabled={!startTime} />
             </div>
-            <p className={styles.hint}>Leave the times empty for an all-day event.</p>
-            <TextField label="Where" placeholder="Optional" value={location} onChange={(changeEvent) => setLocation(changeEvent.target.value)} maxLength={200} />
-            <TextAreaField label="Notes" placeholder="Optional" rows={3} value={notes} onChange={(changeEvent) => setNotes(changeEvent.target.value)} />
+            <p className={styles.hint}>{t("calendar.timesHint")}</p>
+            <TextField label={t("calendar.where")} placeholder={t("common.optional")} value={location} onChange={(changeEvent) => setLocation(changeEvent.target.value)} maxLength={200} />
+            <TextAreaField label={t("calendar.notes")} placeholder={t("common.optional")} rows={3} value={notes} onChange={(changeEvent) => setNotes(changeEvent.target.value)} />
 
-            {saveEvent.isError && <Notice>{getErrorMessage(saveEvent.error)}</Notice>}
+            {saveEvent.isError && <Notice>{getErrorMessage(saveEvent.error, t)}</Notice>}
 
             <div className={styles.actions}>
                 <Button variant="ghost" onClick={onCancel}>
-                    Cancel
+                    {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={saveEvent.isPending}>
-                    {saveEvent.isPending ? "Saving…" : "Save event"}
+                    {saveEvent.isPending ? t("common.saving") : t("calendar.save")}
                 </Button>
             </div>
         </form>

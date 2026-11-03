@@ -11,6 +11,7 @@ import { getErrorMessage } from "../../lib/api";
 import { useDeleteShoppingItem, useEditShoppingItem } from "../../lib/queries";
 import { filterSuggestions } from "../../lib/tags";
 import type { ImageUpload, ShoppingItem } from "../../lib/types";
+import { useTranslation } from "../../lib/i18n";
 import styles from "../Form.module.css";
 
 interface ShoppingItemFormProps {
@@ -23,6 +24,7 @@ interface ShoppingItemFormProps {
 const maxTags = 10;
 
 export function ShoppingItemForm({ item, storeNames, knownTags, onDone }: ShoppingItemFormProps) {
+    const { t } = useTranslation();
     const editShoppingItem = useEditShoppingItem();
     const deleteShoppingItem = useDeleteShoppingItem();
     const [name, setName] = useState(item.name);
@@ -50,21 +52,21 @@ export function ShoppingItemForm({ item, storeNames, knownTags, onDone }: Shoppi
 
     return (
         <form className={styles.form} onSubmit={submit}>
-            <TextField label="Item" autoComplete="off" value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required />
+            <TextField label={t("shopping.item")} autoComplete="off" value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required />
             <div className={styles.fieldWithSuggestions}>
-                <TextField label="Store" hint="Leave it empty if any store has it." value={store} onChange={(event) => setStore(event.target.value)} maxLength={40} autoComplete="off" />
-                <Suggestions label="Stores on the list" options={filterSuggestions(storeNames, store, [store.trim()])} onPick={setStore} />
+                <TextField label={t("shopping.store")} hint={t("shopping.storeHint")} value={store} onChange={(event) => setStore(event.target.value)} maxLength={40} autoComplete="off" />
+                <Suggestions label={t("shopping.storesOnList")} options={filterSuggestions(storeNames, store, [store.trim()])} onPick={setStore} />
             </div>
-            <TagsField label="Tags" hint="Aisle, priority, anything you filter by. Enter or a comma adds one." tags={tags} suggestions={knownTags} maxTags={maxTags} onChange={setTags} />
-            <CheckboxField label="Only buying this once" hint="After shopping it's removed instead of kept in Inventory." isChecked={buyOnce} onChange={setBuyOnce} />
-            <ImageField label="Photo" hint="Handy for the exact brand or size." currentImage={item.image} value={image} onChange={setImage} />
+            <TagsField label={t("common.tags")} hint={t("shopping.tagsHint")} tags={tags} suggestions={knownTags} maxTags={maxTags} onChange={setTags} />
+            <CheckboxField label={t("shopping.buyOnce")} hint={t("shopping.buyOnceHint")} isChecked={buyOnce} onChange={setBuyOnce} />
+            <ImageField label={t("common.photo")} hint={t("shopping.photoHint")} currentImage={item.image} value={image} onChange={setImage} />
 
-            {editShoppingItem.isError && <Notice>{getErrorMessage(editShoppingItem.error)}</Notice>}
+            {editShoppingItem.isError && <Notice>{getErrorMessage(editShoppingItem.error, t)}</Notice>}
 
             <div className={[styles.actions, styles.spread].join(" ")}>
                 <DeleteButton isPending={deleteShoppingItem.isPending} onConfirm={remove} />
                 <Button type="submit" disabled={editShoppingItem.isPending}>
-                    {editShoppingItem.isPending ? "Saving…" : "Save"}
+                    {editShoppingItem.isPending ? t("common.saving") : t("common.save")}
                 </Button>
             </div>
         </form>

@@ -4,6 +4,29 @@ A self-hosted household app: shared to-do lists with repeating chores, a shoppin
 
 *Ninho* is Portuguese for "nest".
 
+<table>
+    <tr>
+        <td width="25%"><img src="docs/screenshots/mobile-todos-light.png" alt="To-do lists on a phone, light mode"></td>
+        <td width="25%"><img src="docs/screenshots/mobile-shopping-dark.png" alt="Shopping list on a phone, dark mode, with only two tabs"></td>
+        <td width="25%"><img src="docs/screenshots/mobile-recipe-light.png" alt="A recipe on a phone, light mode"></td>
+        <td width="25%"><img src="docs/screenshots/mobile-calendar-dark.png" alt="The home calendar on a phone, dark mode"></td>
+    </tr>
+    <tr>
+        <td>Repeating chores, each with someone in charge</td>
+        <td>Shopping by store and tag, in dark mode, with Recipes and Calendar turned off</td>
+        <td>A recipe, ingredients sorted and steps numbered</td>
+        <td>The home calendar, in dark mode</td>
+    </tr>
+    <tr>
+        <td colspan="2"><img src="docs/screenshots/desktop-calendar-light.png" alt="The calendar on a computer, light mode"></td>
+        <td colspan="2"><img src="docs/screenshots/desktop-todos-dark.png" alt="To-do lists on a computer, dark mode"></td>
+    </tr>
+    <tr>
+        <td colspan="2">On a computer, the tabs move to a sidebar</td>
+        <td colspan="2">Light and dark follow the device's setting</td>
+    </tr>
+</table>
+
 ## What's in it
 
 - **To-dos**: as many lists as you like. Give a to-do to someone, set a due date, or make it repeat ("vacuum every 2 weeks") and it comes back on its own.
@@ -11,7 +34,7 @@ A self-hosted household app: shared to-do lists with repeating chores, a shoppin
 - **Recipes**: ingredients, steps, tags, a photo and the link it came from.
 - **Calendar**: the household's events, each one a tap away from Google Calendar or Apple Calendar.
 
-Changes show up on everyone's phone straight away. Tabs you don't need can be turned off.
+Changes show up on everyone's phone straight away. Tabs you don't need can be turned off. It speaks English and European Portuguese, following each phone's language unless someone picks one on the **Ninho** page.
 
 ## How it works
 
@@ -90,7 +113,9 @@ cd web && npm install
 npm run dev        # http://localhost:5173, proxies /api and /auth to :3000
 ```
 
-`cd api && npm test` runs the calendar export and repeating to-do tests. To run your changes in Docker, `docker compose up -d --build` from a clone builds the image locally. Every push to `main` publishes `ghcr.io/aamadeira/ninho`.
+`cd api && npm test` runs the calendar export and repeating to-do tests.
+
+The web app's text lives in `web/src/translations/` (`en.ts` is the reference). To add a language, copy `pt.ts`, translate it, and add the language to `web/src/lib/i18n.ts`; the build fails if a key is missing. To run your changes in Docker, `docker compose up -d --build` from a clone builds the image locally. Every push to `main` publishes `ghcr.io/aamadeira/ninho`.
 
 ## License
 

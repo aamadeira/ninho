@@ -1,10 +1,10 @@
 import { useId, useState, type ChangeEvent } from "react";
-import { getErrorMessage } from "../lib/api";
 import { prepareImage } from "../lib/images";
 import type { ImageUpload, StoredImage } from "../lib/types";
 import { Button } from "./Button";
 import { CameraIcon } from "./icons/Icons";
 import { Notice } from "./Notice";
+import { useTranslation } from "../lib/i18n";
 import styles from "./ImageField.module.css";
 
 interface ImageFieldProps {
@@ -28,6 +28,7 @@ function getPreviewUrl(currentImage: StoredImage | null, value: ImageUpload | nu
 }
 
 export function ImageField({ label, hint, currentImage, value, onChange }: ImageFieldProps) {
+    const { t } = useTranslation();
     const inputId = useId();
     const [isPreparing, setIsPreparing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -45,8 +46,8 @@ export function ImageField({ label, hint, currentImage, value, onChange }: Image
         setIsPreparing(true);
         try {
             onChange(await prepareImage(file));
-        } catch (pickError) {
-            setError(getErrorMessage(pickError));
+        } catch {
+            setError(t("errors.photoUnreadable"));
         } finally {
             setIsPreparing(false);
         }
@@ -71,7 +72,7 @@ export function ImageField({ label, hint, currentImage, value, onChange }: Image
                 <label htmlFor={inputId} className={styles.picker} aria-busy={isPreparing}>
                     {fileInput}
                     <CameraIcon size={26} />
-                    <span className={styles.pickerText}>{isPreparing ? "Getting the photo ready…" : "Add a photo"}</span>
+                    <span className={styles.pickerText}>{isPreparing ? t("image.preparing") : t("image.add")}</span>
                     {hint && <span className={styles.hint}>{hint}</span>}
                 </label>
             )}
@@ -83,10 +84,10 @@ export function ImageField({ label, hint, currentImage, value, onChange }: Image
                         <label htmlFor={inputId} className={styles.replace} aria-busy={isPreparing}>
                             {fileInput}
                             <CameraIcon size={18} />
-                            {isPreparing ? "Getting it ready…" : "Replace"}
+                            {isPreparing ? t("image.preparingShort") : t("image.replace")}
                         </label>
                         <Button variant="ghost" onClick={remove}>
-                            Remove
+                            {t("image.remove")}
                         </Button>
                     </div>
                 </div>

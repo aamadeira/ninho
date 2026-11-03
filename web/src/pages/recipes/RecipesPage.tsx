@@ -14,10 +14,12 @@ import { toggleTag } from "../../lib/tags";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeForm } from "./RecipeForm";
 import { filterRecipes, getAllTags } from "./recipeText";
+import { useTranslation } from "../../lib/i18n";
 import pageStyles from "../Page.module.css";
 import styles from "./RecipesPage.module.css";
 
 export function RecipesPage() {
+    const { t } = useTranslation();
     const recipesQuery = useRecipes();
     const [search, setSearch] = useState("");
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -32,27 +34,27 @@ export function RecipesPage() {
     const newRecipeButton = (
         <Button onClick={() => setIsAdding(true)}>
             <PlusIcon size={18} />
-            New recipe
+            {t("recipes.new")}
         </Button>
     );
 
     return (
         <>
-            <PageHeader title="Recipes" action={newRecipeButton} />
+            <PageHeader title={t("recipes.title")} action={newRecipeButton} />
 
             {recipes.length > 0 && (
                 <>
                     <TextField
-                        label="Search recipes"
+                        label={t("recipes.search")}
                         isLabelHidden
                         type="search"
                         className={styles.search}
-                        placeholder="Search by name or ingredient…"
+                        placeholder={t("recipes.searchPlaceholder")}
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                     />
                     {tags.length > 0 && (
-                        <ChipRow label="Filter by tag">
+                        <ChipRow label={t("recipes.filterByTag")}>
                             {tags.map((tag) => (
                                 <Chip key={tag} label={tag} isSelected={activeTags.includes(tag)} onClick={() => setSelectedTags(toggleTag(activeTags, tag))} />
                             ))}
@@ -61,12 +63,12 @@ export function RecipesPage() {
                 </>
             )}
 
-            {recipesQuery.isPending && <p className={pageStyles.status}>Loading…</p>}
-            {recipesQuery.isError && <Notice>Couldn't load the recipes.</Notice>}
+            {recipesQuery.isPending && <p className={pageStyles.status}>{t("common.loading")}</p>}
+            {recipesQuery.isError && <Notice>{t("recipes.loadError")}</Notice>}
             {recipesQuery.isSuccess && recipes.length === 0 && (
-                <EmptyState title="No recipes yet" text="Save the dishes you make again and again, with tags like quick or vegetarian to find them later." />
+                <EmptyState title={t("recipes.emptyTitle")} text={t("recipes.emptyText")} />
             )}
-            {recipes.length > 0 && visibleRecipes.length === 0 && <p className={pageStyles.status}>No recipe matches that. Try fewer tags.</p>}
+            {recipes.length > 0 && visibleRecipes.length === 0 && <p className={pageStyles.status}>{t("recipes.noMatch")}</p>}
 
             <ul className={styles.list}>
                 {visibleRecipes.map((recipe) => (
@@ -74,7 +76,7 @@ export function RecipesPage() {
                 ))}
             </ul>
 
-            <Sheet title="New recipe" isOpen={isAdding} onClose={() => setIsAdding(false)}>
+            <Sheet title={t("recipes.new")} isOpen={isAdding} onClose={() => setIsAdding(false)}>
                 <RecipeForm knownTags={tags} onSaved={(recipe) => navigate(`/recipes/${recipe.id}`)} onCancel={() => setIsAdding(false)} />
             </Sheet>
         </>

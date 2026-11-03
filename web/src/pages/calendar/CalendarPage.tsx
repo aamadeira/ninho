@@ -11,6 +11,7 @@ import { EventDetails } from "./EventDetails";
 import { EventForm } from "./EventForm";
 import { EventList } from "./EventList";
 import { MonthGrid } from "./MonthGrid";
+import { useTranslation, type Translate } from "../../lib/i18n";
 import pageStyles from "../Page.module.css";
 import styles from "./CalendarPage.module.css";
 
@@ -18,19 +19,20 @@ type SheetState = { mode: "closed" } | { mode: "details"; eventId: number } | { 
 
 const upcomingEventsLimit = 6;
 
-function getSheetTitle(sheet: SheetState, detailsEvent?: CalendarEvent): string {
+function getSheetTitle(sheet: SheetState, t: Translate, detailsEvent?: CalendarEvent): string {
     if (sheet.mode === "details") {
         return detailsEvent?.title ?? "";
     }
 
     if (sheet.mode === "form" && sheet.event) {
-        return "Edit event";
+        return t("calendar.editEvent");
     }
 
-    return "New event";
+    return t("calendar.newEvent");
 }
 
 export function CalendarPage() {
+    const { t, locale } = useTranslation();
     const eventsQuery = useEvents();
     const [visibleMonth, setVisibleMonth] = useState(() => getMonthStart(new Date()));
     const [selectedDate, setSelectedDate] = useState(todayIsoDate);
@@ -60,27 +62,27 @@ export function CalendarPage() {
     const newEventButton = (
         <Button onClick={() => setSheet({ mode: "form", date: selectedDate })}>
             <PlusIcon size={18} />
-            New event
+            {t("calendar.newEvent")}
         </Button>
     );
 
     return (
         <>
-            <PageHeader title="Calendar" action={newEventButton} />
+            <PageHeader title={t("calendar.title")} action={newEventButton} />
 
-            {eventsQuery.isError && <Notice>Couldn't load the calendar.</Notice>}
+            {eventsQuery.isError && <Notice>{t("calendar.loadError")}</Notice>}
 
             <MonthGrid month={visibleMonth} selectedDate={selectedDate} datesWithEvents={datesWithEvents} onSelectDate={setSelectedDate} onChangeMonth={setVisibleMonth} />
 
             <section>
-                <h2 className={pageStyles.sectionTitle}>{selectedDate === today ? `Today, ${formatLongDate(selectedDate)}` : formatLongDate(selectedDate)}</h2>
+                <h2 className={pageStyles.sectionTitle}>{selectedDate === today ? t("calendar.todayDate", { date: formatLongDate(selectedDate, locale) }) : formatLongDate(selectedDate, locale)}</h2>
                 {selectedDayEvents.length > 0 && <EventList events={selectedDayEvents} onOpen={(event) => setSheet({ mode: "details", eventId: event.id })} />}
                 {selectedDayEvents.length === 0 && (
                     <div className={styles.freeDay}>
-                        <p className={pageStyles.muted}>Nothing planned.</p>
+                        <p className={pageStyles.muted}>{t("calendar.nothingPlanned")}</p>
                         <Button variant="secondary" onClick={() => setSheet({ mode: "form", date: selectedDate })}>
                             <PlusIcon size={18} />
-                            Add to this day
+                            {t("calendar.addToDay")}
                         </Button>
                     </div>
                 )}
@@ -88,12 +90,12 @@ export function CalendarPage() {
 
             {upcomingEvents.length > 0 && (
                 <section>
-                    <h2 className={pageStyles.sectionTitle}>Coming up</h2>
+                    <h2 className={pageStyles.sectionTitle}>{t("calendar.comingUp")}</h2>
                     <EventList events={upcomingEvents} showDates onOpen={(event) => setSheet({ mode: "details", eventId: event.id })} />
                 </section>
             )}
 
-            <Sheet title={getSheetTitle(sheet, detailsEvent)} isOpen={sheet.mode !== "closed"} onClose={closeSheet}>
+            <Sheet title={getSheetTitle(sheet, t, detailsEvent)} isOpen={sheet.mode !== "closed"} onClose={closeSheet}>
                 {sheet.mode === "details" && detailsEvent && (
                     <EventDetails event={detailsEvent} onEdit={() => setSheet({ mode: "form", event: detailsEvent, date: detailsEvent.date })} onDeleted={closeSheet} />
                 )}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ClipboardEvent, type KeyboardEvent, type ReactNode } from "react";
 import { createEntry, splitLines, type Entry } from "../lib/entries";
 import { ChevronDownIcon, ChevronUpIcon, CloseIcon, PlusIcon, TrashIcon } from "./icons/Icons";
+import { useTranslation } from "../lib/i18n";
 import textFieldStyles from "./TextField.module.css";
 import styles from "./EntryListField.module.css";
 
@@ -24,6 +25,7 @@ function fitToContent(field: EntryField) {
 }
 
 export function EntryListField({ label, itemLabel, addLabel, placeholder, isOrdered, entries, onChange }: EntryListFieldProps) {
+    const { t } = useTranslation();
     const fields = useRef(new Map<number, EntryField>());
     const addButtonRef = useRef<HTMLButtonElement>(null);
     const entryIdToFocus = useRef<number | null>(null);
@@ -112,7 +114,8 @@ export function EntryListField({ label, itemLabel, addLabel, placeholder, isOrde
     }
 
     function renderEntry(entry: Entry, index: number): ReactNode {
-        const entryName = `${itemLabel} ${index + 1}`;
+        const entryName = t("entries.name", { item: itemLabel, number: index + 1 });
+        const entryLabel = entryName.toLowerCase();
         const sharedProps = {
             value: entry.text,
             placeholder,
@@ -149,7 +152,7 @@ export function EntryListField({ label, itemLabel, addLabel, placeholder, isOrde
                                 onChange={(event) => changeText(event.target, entry.id)}
                                 {...sharedProps}
                             />
-                            <button type="button" className={styles.removeIcon} aria-label={`Remove ${entryName.toLowerCase()}`} onClick={() => remove(index)}>
+                            <button type="button" className={styles.removeIcon} aria-label={t("entries.removeLabel", { entry: entryLabel })} onClick={() => remove(index)}>
                                 <CloseIcon size={18} />
                             </button>
                         </>
@@ -157,17 +160,17 @@ export function EntryListField({ label, itemLabel, addLabel, placeholder, isOrde
                 </div>
                 {isOrdered && (
                     <div className={styles.toolbar}>
-                        <button type="button" className={styles.tool} aria-label={`Move ${entryName.toLowerCase()} up`} disabled={index === 0} onClick={() => move(index, index - 1)}>
+                        <button type="button" className={styles.tool} aria-label={t("entries.moveUpLabel", { entry: entryLabel })} disabled={index === 0} onClick={() => move(index, index - 1)}>
                             <ChevronUpIcon size={16} />
-                            Up
+                            {t("entries.up")}
                         </button>
-                        <button type="button" className={styles.tool} aria-label={`Move ${entryName.toLowerCase()} down`} disabled={index === entries.length - 1} onClick={() => move(index, index + 1)}>
+                        <button type="button" className={styles.tool} aria-label={t("entries.moveDownLabel", { entry: entryLabel })} disabled={index === entries.length - 1} onClick={() => move(index, index + 1)}>
                             <ChevronDownIcon size={16} />
-                            Down
+                            {t("entries.down")}
                         </button>
-                        <button type="button" className={[styles.tool, styles.removeTool].join(" ")} aria-label={`Remove ${entryName.toLowerCase()}`} onClick={() => remove(index)}>
+                        <button type="button" className={[styles.tool, styles.removeTool].join(" ")} aria-label={t("entries.removeLabel", { entry: entryLabel })} onClick={() => remove(index)}>
                             <TrashIcon size={16} />
-                            Remove
+                            {t("entries.remove")}
                         </button>
                     </div>
                 )}

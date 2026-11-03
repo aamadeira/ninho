@@ -10,6 +10,7 @@ import { splitLines, toEntries, toLines } from "../../lib/entries";
 import { useSaveRecipe } from "../../lib/queries";
 import type { ImageUpload, Recipe } from "../../lib/types";
 import { sortIngredients } from "./recipeText";
+import { useTranslation } from "../../lib/i18n";
 import formStyles from "../Form.module.css";
 
 interface RecipeFormProps {
@@ -22,6 +23,7 @@ interface RecipeFormProps {
 const maxTags = 20;
 
 export function RecipeForm({ recipe, knownTags, onSaved, onCancel }: RecipeFormProps) {
+    const { t } = useTranslation();
     const saveRecipe = useSaveRecipe();
     const [title, setTitle] = useState(recipe?.title ?? "");
     const [tags, setTags] = useState(recipe?.tags ?? []);
@@ -39,23 +41,23 @@ export function RecipeForm({ recipe, knownTags, onSaved, onCancel }: RecipeFormP
 
     return (
         <form className={formStyles.form} onSubmit={submit}>
-            <TextField label="Name" autoComplete="off" data-autofocus={recipe ? undefined : true} value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} required />
-            <ImageField label="Photo" hint="The dish, or the page from the cookbook." currentImage={recipe?.image ?? null} value={image} onChange={setImage} />
+            <TextField label={t("common.name")} autoComplete="off" data-autofocus={recipe ? undefined : true} value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} required />
+            <ImageField label={t("common.photo")} hint={t("recipes.photoHint")} currentImage={recipe?.image ?? null} value={image} onChange={setImage} />
 
-            <TagsField label="Tags" hint="Like quick or vegetarian. Enter or a comma adds one." tags={tags} suggestions={knownTags} maxTags={maxTags} onChange={setTags} />
+            <TagsField label={t("common.tags")} hint={t("recipes.tagsHint")} tags={tags} suggestions={knownTags} maxTags={maxTags} onChange={setTags} />
 
-            <TextField label="Link" hint="Where the recipe came from, if anywhere." type="url" placeholder="https://" value={link} onChange={(event) => setLink(event.target.value)} />
-            <EntryListField label="Ingredients" itemLabel="Ingredient" addLabel="Add an ingredient" placeholder="2 eggs" isOrdered={false} entries={ingredients} onChange={setIngredients} />
-            <EntryListField label="Steps" itemLabel="Step" addLabel="Add a step" placeholder="What happens next…" isOrdered entries={steps} onChange={setSteps} />
+            <TextField label={t("recipes.link")} hint={t("recipes.linkHint")} type="url" placeholder="https://" value={link} onChange={(event) => setLink(event.target.value)} />
+            <EntryListField label={t("recipes.ingredients")} itemLabel={t("recipes.ingredient")} addLabel={t("recipes.addIngredient")} placeholder={t("recipes.ingredientPlaceholder")} isOrdered={false} entries={ingredients} onChange={setIngredients} />
+            <EntryListField label={t("recipes.steps")} itemLabel={t("recipes.step")} addLabel={t("recipes.addStep")} placeholder={t("recipes.stepPlaceholder")} isOrdered entries={steps} onChange={setSteps} />
 
-            {saveRecipe.isError && <Notice>{getErrorMessage(saveRecipe.error)}</Notice>}
+            {saveRecipe.isError && <Notice>{getErrorMessage(saveRecipe.error, t)}</Notice>}
 
             <div className={formStyles.actions}>
                 <Button variant="ghost" onClick={onCancel}>
-                    Cancel
+                    {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={saveRecipe.isPending}>
-                    {saveRecipe.isPending ? "Saving…" : "Save recipe"}
+                    {saveRecipe.isPending ? t("common.saving") : t("recipes.save")}
                 </Button>
             </div>
         </form>

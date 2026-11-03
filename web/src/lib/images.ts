@@ -11,7 +11,7 @@ function drawJpeg(bitmap: ImageBitmap, scale: number): string {
 
     const context = canvas.getContext("2d");
     if (!context) {
-        throw new Error("Couldn't read that photo. Try another one.");
+        throw new Error("This browser has no 2D canvas to resize the photo");
     }
 
     context.fillStyle = "white";
@@ -26,8 +26,8 @@ export async function prepareImage(file: File): Promise<ImageUpload> {
     let bitmap: ImageBitmap;
     try {
         bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
-    } catch {
-        throw new Error("Couldn't read that photo. Try a JPEG or PNG.");
+    } catch (decodeError) {
+        throw new Error("The browser couldn't decode the photo", { cause: decodeError });
     }
 
     try {

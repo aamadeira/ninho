@@ -1,5 +1,6 @@
 import { formatShortDate, formatTimeRange } from "../../lib/dates";
 import type { CalendarEvent } from "../../lib/types";
+import { useTranslation } from "../../lib/i18n";
 import styles from "./EventList.module.css";
 
 interface EventListProps {
@@ -9,14 +10,16 @@ interface EventListProps {
 }
 
 export function EventList({ events, showDates = false, onOpen }: EventListProps) {
+    const { t, locale } = useTranslation();
+
     return (
         <ul className={styles.list}>
             {events.map((event) => (
                 <li key={event.id}>
                     <button type="button" className={styles.event} onClick={() => onOpen(event)}>
                         <span className={styles.when}>
-                            {showDates && <span className={styles.date}>{formatShortDate(event.date)}</span>}
-                            <span className={styles.time}>{formatTimeRange(event.startTime, event.endTime)}</span>
+                            {showDates && <span className={styles.date}>{formatShortDate(event.date, locale)}</span>}
+                            <span className={styles.time}>{formatTimeRange(event.startTime, event.endTime, t)}</span>
                         </span>
                         <span className={styles.body}>
                             <span className={styles.title}>{event.title}</span>

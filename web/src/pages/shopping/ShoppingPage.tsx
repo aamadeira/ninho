@@ -17,25 +17,23 @@ import { AddShoppingItemForm } from "./AddShoppingItemForm";
 import { ShoppingItemDetail } from "./ShoppingItemDetail";
 import { ShoppingItemForm } from "./ShoppingItemForm";
 import { countNeededItems, countOpenItems, describeCheckout, filterByStore, filterByTags, getShoppingTags, getStoreNames, groupShoppingItems } from "./shoppingGroups";
+import { useTranslation, type Translate } from "../../lib/i18n";
 import pageStyles from "../Page.module.css";
 import styles from "./ShoppingPage.module.css";
 
 type SheetState = { mode: "closed" } | { mode: "edit"; itemId: number } | { mode: "photo"; itemId: number };
 
-function getSummary(items: ShoppingItem[]): string | undefined {
+function getSummary(items: ShoppingItem[], t: Translate): string | undefined {
     const openCount = countNeededItems(items);
     if (openCount === 0) {
         return undefined;
     }
 
-    if (openCount === 1) {
-        return "1 thing to buy";
-    }
-
-    return `${openCount} things to buy`;
+    return t("shopping.toBuy", { count: openCount });
 }
 
 export function ShoppingPage() {
+    const { t } = useTranslation();
     const shoppingQuery = useShoppingItems();
     const updateShoppingItem = useUpdateShoppingItem();
     const checkOut = useCheckOut();
@@ -50,7 +48,7 @@ export function ShoppingPage() {
     const tags = getShoppingTags(items);
     const activeTags = selectedTags.filter((tag) => tags.includes(tag));
     const visibleItems = filterByTags(filterByStore(items, selectedStore), activeTags);
-    const groups = groupShoppingItems(visibleItems, storeNames);
+    const groups = groupShoppingItems(visibleItems, storeNames, t);
 
     let sheetItem: ShoppingItem | undefined;
     if (sheet.mode !== "closed") {
@@ -62,17 +60,17 @@ export function ShoppingPage() {
     }
 
     function finishShopping() {
-        setMessage(describeCheckout(items));
+        setMessage(describeCheckout(items, t));
         checkOut.mutate();
     }
 
     return (
         <>
-            <PageHeader title="Shopping" subtitle={getSummary(items)} />
+            <PageHeader title={t("shopping.title")} subtitle={getSummary(items, t)} />
 
             {storeNames.length > 0 && (
-                <ChipRow label="Stores">
-                    <Chip label="All stores" isSelected={selectedStore === null} onClick={() => setSelectedStore(null)} />
+                <ChipRow label={t("shopping.stores")}>
+                    <Chip label={t("shopping.allStores")} isSelected={selectedStore === null} onClick={() => setSelectedStore(null)} />
                     {storeNames.map((storeName) => (
                         <Chip key={storeName} label={storeName} count={countOpenItems(items, storeName)} isSelected={selectedStore === storeName} onClick={() => setSelectedStore(storeName)} />
                     ))}
@@ -80,7 +78,7 @@ export function ShoppingPage() {
             )}
 
             {tags.length > 0 && (
-                <ChipRow label="Tags">
+                <ChipRow label={t("common.tags")}>
                     {tags.map((tag) => (
                         <Chip key={tag} label={tag} icon={<TagIcon size={14} />} isSelected={activeTags.includes(tag)} onClick={() => setSelectedTags(toggleTag(activeTags, tag))} />
                     ))}
@@ -89,12 +87,12 @@ export function ShoppingPage() {
 
             <AddShoppingItemForm key={selectedStore ?? "all-stores"} defaultStore={selectedStore} storeNames={storeNames} tags={activeTags} />
 
-            {shoppingQuery.isPending && <p className={pageStyles.status}>Loading…</p>}
-            {shoppingQuery.isError && <Notice>Couldn't load the shopping list.</Notice>}
+            {shoppingQuery.isPending && <p className={pageStyles.status}>{t("common.loading")}</p>}
+            {shoppingQuery.isError && <Notice>{t("shopping.loadError")}</Notice>}
             {shoppingQuery.isSuccess && items.length === 0 && (
-                <EmptyState title="The list is empty" text="Add what you need. Pick a store if it has to come from a specific supermarket." />
+                <EmptyState title={t("shopping.emptyTitle")} text={t("shopping.emptyText")} />
             )}
-            {items.length > 0 && groups.length === 0 && <p className={pageStyles.status}>Nothing with those tags here. Try fewer tags.</p>}
+            {items.length > 0 && groups.length === 0 && <p className={pageStyles.status}>{t("shopping.noTagMatch")}</p>}
 
             {groups.map((group) => (
                 <div key={group.title} className={styles.group}>
@@ -114,8 +112,8 @@ export function ShoppingPage() {
                     </ListSection>
                     {group.isCart && (
                         <div className={styles.checkout}>
-                            <Button onClick={finishShopping}>Done shopping</Button>
-                            <p className={styles.checkoutHint}>Moves the cart to Inventory, so you can untick things when they run out. Just once items are removed.</p>
+                            <Button onClick={finishShopping}>{t("shopping.doneShopping")}</Button>
+                            <p className={styles.checkoutHint}>{t("shopping.checkoutHint")}</p>
                         </div>
                     )}
                 </div>
@@ -123,7 +121,7 @@ export function ShoppingPage() {
 
             {message && <Toast message={message} onDismiss={dismissMessage} />}
 
-            <Sheet title="Edit item" isOpen={sheet.mode === "edit" && sheetItem !== undefined} onClose={closeSheet}>
+            <Sheet title={t("shopping.editTitle")} isOpen={sheet.mode === "edit" && sheetItem !== undefined} onClose={closeSheet}>
                 {sheet.mode === "edit" && sheetItem && <ShoppingItemForm key={sheetItem.id} item={sheetItem} storeNames={storeNames} knownTags={tags} onDone={closeSheet} />}
             </Sheet>
 

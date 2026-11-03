@@ -6,6 +6,7 @@ import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-qu
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
+import { LanguageProvider } from "./components/LanguageProvider";
 import { isApiError } from "./lib/api";
 import { queryKeys } from "./lib/queries";
 import { routes } from "./router";
@@ -34,8 +35,10 @@ const router = createBrowserRouter(routes);
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-        </QueryClientProvider>
+        <LanguageProvider>
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>
+        </LanguageProvider>
     </StrictMode>
 );

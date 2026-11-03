@@ -5,6 +5,7 @@ import { Notice } from "../../components/Notice";
 import { TextField } from "../../components/TextField";
 import { getErrorMessage } from "../../lib/api";
 import { useAddTodo } from "../../lib/queries";
+import { useTranslation } from "../../lib/i18n";
 import styles from "../AddForm.module.css";
 
 interface AddTodoFormProps {
@@ -12,6 +13,7 @@ interface AddTodoFormProps {
 }
 
 export function AddTodoForm({ listName }: AddTodoFormProps) {
+    const { t } = useTranslation();
     const addTodo = useAddTodo();
     const [title, setTitle] = useState("");
 
@@ -26,7 +28,7 @@ export function AddTodoForm({ listName }: AddTodoFormProps) {
         addTodo.mutate({ title: trimmedTitle, listName }, { onError: () => setTitle(trimmedTitle) });
     }
 
-    const fieldLabel = `Add to ${listName}`;
+    const fieldLabel = t("todos.addTo", { list: listName });
 
     return (
         <form className={styles.form} onSubmit={submit}>
@@ -41,11 +43,11 @@ export function AddTodoForm({ listName }: AddTodoFormProps) {
                     autoComplete="off"
                     enterKeyHint="done"
                 />
-                <Button type="submit" size="icon" aria-label="Add to-do">
+                <Button type="submit" size="icon" aria-label={t("todos.add")}>
                     <PlusIcon />
                 </Button>
             </div>
-            {addTodo.isError && <Notice>{getErrorMessage(addTodo.error)}</Notice>}
+            {addTodo.isError && <Notice>{getErrorMessage(addTodo.error, t)}</Notice>}
         </form>
     );
 }

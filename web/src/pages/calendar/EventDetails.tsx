@@ -4,6 +4,7 @@ import { CalendarIcon, ClockIcon, ExternalIcon, PencilIcon, PinIcon } from "../.
 import { formatLongDate, formatTimeRange } from "../../lib/dates";
 import { useDeleteEvent } from "../../lib/queries";
 import type { CalendarEvent } from "../../lib/types";
+import { useTranslation } from "../../lib/i18n";
 import styles from "./EventDetails.module.css";
 
 interface EventDetailsProps {
@@ -13,6 +14,7 @@ interface EventDetailsProps {
 }
 
 export function EventDetails({ event, onEdit, onDeleted }: EventDetailsProps) {
+    const { t, locale } = useTranslation();
     const deleteEvent = useDeleteEvent();
 
     return (
@@ -20,11 +22,11 @@ export function EventDetails({ event, onEdit, onDeleted }: EventDetailsProps) {
             <ul className={styles.facts}>
                 <li>
                     <CalendarIcon size={18} />
-                    {formatLongDate(event.date)}
+                    {formatLongDate(event.date, locale)}
                 </li>
                 <li>
                     <ClockIcon size={18} />
-                    {formatTimeRange(event.startTime, event.endTime)}
+                    {formatTimeRange(event.startTime, event.endTime, t)}
                 </li>
                 {event.location && (
                     <li>
@@ -37,13 +39,13 @@ export function EventDetails({ event, onEdit, onDeleted }: EventDetailsProps) {
             {event.notes && <p className={styles.notes}>{event.notes}</p>}
 
             <div className={styles.exports}>
-                <p className={styles.exportsLabel}>Put it in your own calendar</p>
+                <p className={styles.exportsLabel}>{t("calendar.export")}</p>
                 <ButtonLink variant="secondary" href={`/api/events/${event.id}/google-calendar`} external>
-                    Google Calendar
+                    {t("calendar.google")}
                     <ExternalIcon size={16} />
                 </ButtonLink>
                 <ButtonLink variant="secondary" href={`/api/events/${event.id}/calendar.ics`}>
-                    Apple Calendar
+                    {t("calendar.apple")}
                     <ExternalIcon size={16} />
                 </ButtonLink>
             </div>
@@ -52,7 +54,7 @@ export function EventDetails({ event, onEdit, onDeleted }: EventDetailsProps) {
                 <DeleteButton isPending={deleteEvent.isPending} onConfirm={() => deleteEvent.mutate(event.id, { onSuccess: onDeleted })} />
                 <Button variant="secondary" onClick={onEdit}>
                     <PencilIcon size={18} />
-                    Edit
+                    {t("common.edit")}
                 </Button>
             </div>
         </div>

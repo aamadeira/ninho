@@ -9,7 +9,7 @@ services:
       TZ: Europe/Lisbon
       DISABLED_FEATURES: "" # e.g. "recipes,calendar"
     volumes:
-      - ninho-data:/srv/ninho/data
+      - ninho:/srv/ninho/data
 
 volumes:
-  ninho-data:
+  ninho:

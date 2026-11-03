@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "../../components/Button";
 import { TextField } from "../../components/TextField";
+import { useTranslation } from "../../lib/i18n";
 import styles from "../Form.module.css";
 
 interface NewListFormProps {
@@ -8,6 +9,7 @@ interface NewListFormProps {
 }
 
 export function NewListForm({ onCreate }: NewListFormProps) {
+    const { t } = useTranslation();
     const [listName, setListName] = useState("");
 
     function submit(event: FormEvent<HTMLFormElement>) {
@@ -20,9 +22,9 @@ export function NewListForm({ onCreate }: NewListFormProps) {
 
     return (
         <form className={styles.form} onSubmit={submit}>
-            <TextField label="List name" placeholder="Garden, Moving, Gifts…" maxLength={40} autoComplete="off" value={listName} onChange={(event) => setListName(event.target.value)} data-autofocus required />
+            <TextField label={t("todos.listName")} placeholder={t("todos.listNamePlaceholder")} maxLength={40} autoComplete="off" value={listName} onChange={(event) => setListName(event.target.value)} data-autofocus required />
             <div className={styles.actions}>
-                <Button type="submit">Create list</Button>
+                <Button type="submit">{t("todos.createList")}</Button>
             </div>
         </form>
     );

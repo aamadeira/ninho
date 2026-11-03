@@ -134,8 +134,8 @@ export function useSignOut() {
     return useMutation({
         mutationFn: () => apiRequest<object>("/auth/logout", { method: "POST" }),
         onSuccess: () => {
-            queryClient.clear();
             queryClient.setQueryData(queryKeys.me, null);
+            queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== queryKeys.me[0] });
         }
     });
 }

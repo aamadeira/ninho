@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, type MouseEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { CloseIcon } from "./icons/Icons";
+import { useTranslation } from "../lib/i18n";
 import styles from "./Sheet.module.css";
 
 interface SheetProps {
@@ -30,11 +31,14 @@ function isTyping(panel: HTMLElement): boolean {
     return focusedElement instanceof HTMLInputElement && typingInputTypes.includes(focusedElement.type);
 }
 
-function canDiscard(hasChanges: boolean): boolean {
-    return !hasChanges || window.confirm("Discard your changes?");
+function canDiscard(hasChanges: boolean, question: string): boolean {
+    return !hasChanges || window.confirm(question);
 }
 
 export function Sheet({ title, isOpen, onClose, children }: SheetProps) {
+    const { t } = useTranslation();
+    const discardQuestion = t("common.discardChanges");
+    const discardQuestionRef = useRef(discardQuestion);
     const sheetRef = useRef<HTMLDivElement>(null);
     const dimRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
@@ -44,10 +48,11 @@ export function Sheet({ title, isOpen, onClose, children }: SheetProps) {
 
     useEffect(() => {
         onCloseRef.current = onClose;
+        discardQuestionRef.current = discardQuestion;
     });
 
     function dismiss() {
-        if (canDiscard(hasChangesRef.current)) {
+        if (canDiscard(hasChangesRef.current, discardQuestion)) {
             onClose();
         }
     }
@@ -86,7 +91,7 @@ export function Sheet({ title, isOpen, onClose, children }: SheetProps) {
         }
 
         const closeOnEscape = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && canDiscard(hasChangesRef.current)) {
+            if (event.key === "Escape" && canDiscard(hasChangesRef.current, discardQuestionRef.current)) {
                 onClose();
             }
         };
@@ -312,7 +317,7 @@ export function Sheet({ title, isOpen, onClose, children }: SheetProps) {
 
             const isFarEnough = distance > panel.offsetHeight * dismissDistanceFraction;
             const isFastEnough = speed > dismissSpeedInPixelsPerMillisecond;
-            if ((isFarEnough || isFastEnough) && canDiscard(hasChangesRef.current)) {
+            if ((isFarEnough || isFastEnough) && canDiscard(hasChangesRef.current, discardQuestionRef.current)) {
                 panel.style.transform = `translateY(${panel.offsetHeight}px)`;
                 animateDimLevel(0, () => onCloseRef.current());
                 return;
@@ -365,7 +370,7 @@ export function Sheet({ title, isOpen, onClose, children }: SheetProps) {
                     <h2 id={titleId} className={styles.title}>
                         {title}
                     </h2>
-                    <button type="button" className={styles.close} aria-label="Close" onClick={dismiss}>
+                    <button type="button" className={styles.close} aria-label={t("common.close")} onClick={dismiss}>
                         <CloseIcon />
                     </button>
                 </header>
