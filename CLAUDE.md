@@ -77,6 +77,7 @@ Every add/edit form is a bottom card that rises from the bottom of the screen an
 - Hashed `/assets` are served `immutable` for a year; `index.html` is always revalidated.
 - The Dockerfile's build stages run on the builder's own platform (`--platform=$BUILDPLATFORM`) and only the last stage is built per target, so the arm64 image doesn't emulate Vite and tsc. Their output must stay plain JS; the runtime stage installs the production dependencies itself.
 - The home-screen scope comes from `public/manifest.webmanifest` (`scope` and `start_url` `/`). Without it iOS treated the saved URL as the whole app and showed Safari's bar on other tabs. iOS reads it only when the icon is added.
+- Chrome on Android installs Ninho as an app only over HTTPS (on plain HTTP it offers just a shortcut) and only with the 192 and 512 px PNG icons in the manifest (`icon-192.png`, `icon-512.png`, maskable, with padding for the crop).
 - iOS form quirks: date and time inputs need `appearance: none`, `min-width: 0` and a fixed height (`TextField.module.css`), and `select` must inherit `font`/`color` or iOS paints it system blue.
 - TanStack `mutate(..., { onSuccess })` callbacks only fire for the last call when one mutation runs several times at once.
 

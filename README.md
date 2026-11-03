@@ -57,7 +57,7 @@ Set `TZ` in `docker-compose.yml` to your timezone first (see [Configure](#config
 
 Open `http://<server>:8090`. The first person to open it creates their account; from the **Ninho** page they add everyone else with a name and a first password.
 
-On the phones: Share → Add to Home Screen on an iPhone, or the browser menu → Add to Home screen on Android.
+On the phones: Share → Add to Home Screen on an iPhone, or the browser menu → Add to Home screen on Android. Chrome on Android only installs it as an app over HTTPS (see [HTTPS](#https)); on plain HTTP it adds a shortcut that opens in Chrome.
 
 ## Update
 
@@ -98,7 +98,13 @@ docker compose stop && docker compose cp ninho:/srv/ninho/data ./ninho-backup &&
 
 ## HTTPS
 
-Plain HTTP is fine on the home network and over Tailscale. If you later put it behind HTTPS (for example `tailscale serve`), set `SECURE_COOKIE=true` on the container.
+Plain HTTP is fine on the home network and over Tailscale, but Android needs HTTPS to install Ninho as an app. With Tailscale, run this on the server to get `https://<server>.<tailnet>.ts.net` with a real certificate:
+
+```sh
+tailscale serve --bg 8090
+```
+
+Then set `SECURE_COOKIE=true` on the container and open that address on the phones.
 
 ## Develop
 

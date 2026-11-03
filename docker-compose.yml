@@ -1,6 +1,7 @@
 services:
   ninho:
     image: ghcr.io/aamadeira/ninho:latest
+    container_name: ninho
     build: .
     restart: unless-stopped
     ports:
