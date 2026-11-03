@@ -8,7 +8,7 @@ One repo, one container: `api/` (Express 5 + TypeScript + SQLite) serves the bui
 
 - Built for one household and meant for others to self-host, so deploy-time settings matter. Code should be easy to read and own: explicit and conventional, never clever.
 - Design new screens and bigger visual changes with the `ui-ux-pro-max` skill.
-- Served at `http://<host>:8090`, usually over a home network or Tailscale, often without HTTPS. Data is one SQLite file in the `ninho-data` volume; the container runs as the non-root `node` user.
+- Served at `http://<host>:8090`, usually over a home network or Tailscale, often without HTTPS. Data is one SQLite file in the `ninho` volume; the container starts as root only to give the data folder to `PUID:PGID` (default 1000) in `entrypoint.sh`, then runs as that user through `su-exec`; run one-off scripts through `ninho-entrypoint` so new files get the same owner.
 - Public on GitHub as `aamadeira/ninho` (MIT). Every push to `main` publishes `ghcr.io/aamadeira/ninho` for amd64 and arm64 (`.github/workflows/publish.yml`), and the server's compose file pulls it. Don't commit or push unless asked.
 
 ## Features and people

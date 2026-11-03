@@ -65,7 +65,7 @@ On the phones: Share â†’ Add to Home Screen on an iPhone, or the browser menu â†
 docker compose pull && docker compose up -d
 ```
 
-Database changes are applied on startup; your data stays in the `ninho-data` volume.
+Database changes are applied on startup; your data stays in the `ninho` volume.
 
 ## Configure
 
@@ -74,6 +74,7 @@ Set these under `environment` in `docker-compose.yml`, then `docker compose up -
 - `DISABLED_FEATURES`: tabs to hide, comma separated. Any of `todos`, `shopping`, `recipes`, `calendar`. Example: `recipes,calendar`. New features are on by default.
 - `TZ`: your timezone, for example `Europe/Lisbon`. Repeating to-dos use it to know what "today" is.
 - `SECURE_COOKIE`: set to `true` once Ninho is served over HTTPS.
+- `PUID` / `PGID`: the user and group that own the data, `1000` by default. On start Ninho gives its data folder to them and runs as that user, so a folder mounted in place of the volume (`./ninho:/srv/ninho/data`) works too.
 
 The logs show which features are on: `docker compose logs ninho | grep Features`.
 
@@ -82,14 +83,14 @@ The logs show which features are on: `docker compose logs ninho | grep Features`
 If the person who looks after Ninho forgets their password, set a new one from the server:
 
 ```sh
-docker compose exec ninho node dist/scripts/saveUser.js "Their name" 'a new long password'
+docker compose exec ninho ninho-entrypoint node dist/scripts/saveUser.js "Their name" 'a new long password'
 ```
 
 With a name that doesn't exist yet, it adds that person instead.
 
 ## Back up
 
-Everything lives in the `ninho-data` volume (one SQLite file):
+Everything lives in the `ninho` volume (one SQLite file):
 
 ```sh
 docker compose stop && docker compose cp ninho:/srv/ninho/data ./ninho-backup && docker compose start

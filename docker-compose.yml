@@ -8,6 +8,8 @@ services:
     environment:
       TZ: Europe/Lisbon
       DISABLED_FEATURES: "" # e.g. "recipes,calendar"
+      PUID: 1000
+      PGID: 1000
     volumes:
       - ninho:/srv/ninho/data
 
