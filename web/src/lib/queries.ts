@@ -39,7 +39,7 @@ function putOnShoppingList(items: ShoppingItem[], input: ShoppingItemInput): Sho
     const existingItem = items.find((item) => item.name.toLowerCase() === input.name.toLowerCase());
 
     if (!existingItem) {
-        return [...items, { id: getTemporaryId(), name: input.name, store, tags: input.tags, status: "needed", buyOnce: input.buyOnce ?? false, image: null }];
+        return [...items, { id: getTemporaryId(), name: input.name, store, tags: input.tags, status: "needed", buyOnce: input.buyOnce ?? false, image: null, notes: input.notes || null }];
     }
 
     const mergedTags = [...existingItem.tags];
@@ -56,6 +56,10 @@ function applyShoppingEdit(item: ShoppingItem, input: ShoppingItemInput): Shoppi
     const editedItem = { ...item, name: input.name, store: input.store || null, tags: input.tags, buyOnce: input.buyOnce ?? item.buyOnce };
     if (input.image === null) {
         editedItem.image = null;
+    }
+
+    if (input.notes !== undefined) {
+        editedItem.notes = input.notes.trim() || null;
     }
 
     return editedItem;
@@ -248,12 +252,18 @@ export function useAddTodo() {
 
     return useMutation({
         mutationFn: (todo: { title: string; listName: string }) => apiRequest<{ todo: Todo }>("/api/todos", { method: "POST", body: todo }),
-        onMutate: (todo) => {
-            const newTodo: Todo = { id: getTemporaryId(), title: todo.title, listName: todo.listName, done: false, assigneeId: null, dueDate: null, repeat: null };
-            return updateCachedList<Todo>(queryClient, queryKeys.todos, (todos) => [...todos, newTodo]);
+        onMutate: async (todo) => {
+            const newTodo: Todo = { id: getTemporaryId(), title: todo.title, listName: todo.listName, done: false, assigneeId: null, dueDate: null, repeat: null, notes: null };
+            const context = await updateCachedList<Todo>(queryClient, queryKeys.todos, (todos) => [...todos, newTodo]);
+            return { ...context, temporaryId: newTodo.id };
+        },
+        onSuccess: (response, _variables, context) => {
+            queryClient.setQueryData<Todo[]>(queryKeys.todos, (todos) => todos?.map((todo) => (todo.id === context.temporaryId ? response.todo : todo)));
         },
         onError: (_error, _variables, context) => restoreCachedList(queryClient, queryKeys.todos, context),
-        onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.todos })
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.todos });
+        }
     });
 }
 
@@ -306,8 +316,14 @@ export function useAddShoppingItem() {
     return useMutation({
         mutationFn: (item: ShoppingItemInput) => apiRequest<{ item: ShoppingItem }>("/api/shopping", { method: "POST", body: item }),
         onMutate: (item) => updateCachedList<ShoppingItem>(queryClient, queryKeys.shopping, (items) => putOnShoppingList(items, item)),
+        onSuccess: (response) => {
+            const savedName = response.item.name.toLowerCase();
+            queryClient.setQueryData<ShoppingItem[]>(queryKeys.shopping, (items) => items?.map((item) => (item.name.toLowerCase() === savedName ? response.item : item)));
+        },
         onError: (_error, _variables, context) => restoreCachedList(queryClient, queryKeys.shopping, context),
-        onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.shopping })
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.shopping });
+        }
     });
 }
 

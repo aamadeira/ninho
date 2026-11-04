@@ -36,6 +36,7 @@ export interface Todo {
     assigneeId: number | null;
     dueDate: string | null;
     repeat: TodoRepeat | null;
+    notes: string | null;
 }
 
 export interface TodoChanges {
@@ -45,6 +46,7 @@ export interface TodoChanges {
     assigneeId?: number | null;
     dueDate?: string | null;
     repeat?: TodoRepeat | null;
+    notes?: string | null;
 }
 
 export type ShoppingStatus = "needed" | "cart" | "bought";
@@ -57,6 +59,7 @@ export interface ShoppingItem {
     status: ShoppingStatus;
     buyOnce: boolean;
     image: StoredImage | null;
+    notes: string | null;
 }
 
 export interface ShoppingItemChanges {
@@ -69,6 +72,7 @@ export interface ShoppingItemInput {
     tags: string[];
     buyOnce?: boolean;
     image?: ImageUpload | null;
+    notes?: string;
 }
 
 export interface Recipe {

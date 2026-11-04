@@ -6,6 +6,7 @@ import styles from "./CheckRow.module.css";
 interface CheckRowProps {
     label: string;
     detail?: ReactNode;
+    notes?: string | null;
     isDone: boolean;
     thumbnailUrl?: string | null;
     onToggle: (done: boolean) => void;
@@ -13,7 +14,7 @@ interface CheckRowProps {
     onOpenImage?: () => void;
 }
 
-export function CheckRow({ label, detail, isDone, thumbnailUrl, onToggle, onEdit, onOpenImage }: CheckRowProps) {
+export function CheckRow({ label, detail, notes, isDone, thumbnailUrl, onToggle, onEdit, onOpenImage }: CheckRowProps) {
     const { t } = useTranslation();
 
     return (
@@ -26,6 +27,7 @@ export function CheckRow({ label, detail, isDone, thumbnailUrl, onToggle, onEdit
                 <span className={styles.text}>
                     <span className={styles.title}>{label}</span>
                     {detail && <span className={styles.detail}>{detail}</span>}
+                    {notes && <span className={styles.notes}>{notes}</span>}
                 </span>
             </label>
             {thumbnailUrl && (

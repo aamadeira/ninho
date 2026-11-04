@@ -12,6 +12,7 @@ export interface ShoppingItem {
     status: ShoppingStatus;
     buyOnce: boolean;
     image: StoredImage | null;
+    notes: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -30,6 +31,7 @@ export class ShoppingUtils {
             si.status AS si_status,
             si.buy_once AS si_buy_once,
             si.image_id AS si_image_id,
+            si.notes AS si_notes,
             si.created_at AS si_created_at,
             si.updated_at AS si_updated_at
         FROM
@@ -58,6 +60,7 @@ export class ShoppingUtils {
             si.status AS si_status,
             si.buy_once AS si_buy_once,
             si.image_id AS si_image_id,
+            si.notes AS si_notes,
             si.created_at AS si_created_at,
             si.updated_at AS si_updated_at
         FROM
@@ -78,6 +81,7 @@ export class ShoppingUtils {
         const name = Generic.parseRequiredText(body?.name, "name", 120);
         const store = Generic.parseOptionalText(body?.store, "store", 40);
         const tags = Generic.parseTags(body?.tags, ShoppingUtils.maxTags);
+        const notes = Generic.parseOptionalText(body?.notes, "notes", 5000);
         let buyOnce = false;
         if (body?.buyOnce !== undefined) {
             buyOnce = Generic.parseBoolean(body.buyOnce, "buy once");
@@ -85,13 +89,13 @@ export class ShoppingUtils {
 
         const existingRows = await new DB().fetch("SELECT si.id AS si_id FROM shopping_items si WHERE si.name = ? COLLATE NOCASE", [name]);
         if (existingRows.length > 0) {
-            return ShoppingUtils.putBackOnList(existingRows[0].si_id, store, tags);
+            return ShoppingUtils.putBackOnList(existingRows[0].si_id, store, tags, notes);
         }
 
         const imageId = await ImagesUtils.save(ImagesUtils.parseUpload(body?.image) ?? null);
 
-        const query = "INSERT INTO shopping_items (name, store, tags, buy_once, image_id) VALUES (?, ?, ?, ?, ?) RETURNING id";
-        const rows = await new DB().fetch(query, [name, store, JSON.stringify(tags), buyOnce ? 1 : 0, imageId]);
+        const query = "INSERT INTO shopping_items (name, store, tags, buy_once, image_id, notes) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
+        const rows = await new DB().fetch(query, [name, store, JSON.stringify(tags), buyOnce ? 1 : 0, imageId, notes]);
         return ShoppingUtils.getByIdOrThrow(rows[0].id);
     }
 
@@ -122,6 +126,11 @@ export class ShoppingUtils {
         if (body?.buyOnce !== undefined) {
             sets.push("buy_once = ?");
             parameters.push(Generic.parseBoolean(body.buyOnce, "buy once") ? 1 : 0);
+        }
+
+        if (body?.notes !== undefined) {
+            sets.push("notes = ?");
+            parameters.push(Generic.parseOptionalText(body.notes, "notes", 5000));
         }
 
         const image = ImagesUtils.parseUpload(body?.image);
@@ -172,7 +181,7 @@ export class ShoppingUtils {
         return value;
     }
 
-    private static async putBackOnList(id: number, store: string | null, tags: string[]): Promise<ShoppingItem> {
+    private static async putBackOnList(id: number, store: string | null, tags: string[], notes: string | null): Promise<ShoppingItem> {
         const item = await ShoppingUtils.getByIdOrThrow(id);
 
         const mergedTags = [...item.tags];
@@ -182,7 +191,7 @@ export class ShoppingUtils {
             }
         }
 
-        return ShoppingUtils.update(id, { status: "needed", store: store ?? item.store, tags: mergedTags });
+        return ShoppingUtils.update(id, { status: "needed", store: store ?? item.store, tags: mergedTags, notes: notes ?? item.notes });
     }
 
     private static toShoppingItem(row: any): ShoppingItem {
@@ -194,6 +203,7 @@ export class ShoppingUtils {
             status: row.si_status,
             buyOnce: row.si_buy_once === 1,
             image: ImagesUtils.toStoredImage(row.si_image_id),
+            notes: row.si_notes,
             createdAt: row.si_created_at,
             updatedAt: row.si_updated_at
         };

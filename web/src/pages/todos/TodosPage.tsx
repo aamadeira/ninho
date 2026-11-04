@@ -24,11 +24,11 @@ import styles from "../Page.module.css";
 
 type SheetState = { mode: "closed" } | { mode: "newList" } | { mode: "edit"; todoId: number };
 
-interface RepeatToast {
-    todoId: number;
-    title: string;
-    previousDueDate: string;
-    nextDueDate: string;
+interface PageToast {
+    id: number;
+    message: string;
+    actionLabel: string;
+    onAction: () => void;
 }
 
 function describeListDeletion(todoCount: number, t: Translate): string {
@@ -64,7 +64,7 @@ export function TodosPage() {
     const deleteTodoList = useDeleteTodoList();
     const [filter, setFilter] = useState<TodoFilter>({ kind: "all" });
     const [sheet, setSheet] = useState<SheetState>({ mode: "closed" });
-    const [toast, setToast] = useState<RepeatToast | null>(null);
+    const [toast, setToast] = useState<PageToast | null>(null);
     const dismissToast = useCallback(() => setToast(null), []);
 
     const today = todayIsoDate();
@@ -126,15 +126,26 @@ export function TodosPage() {
                 onSuccess: (response) => {
                     const nextDueDate = response.todo.dueDate;
                     if (done && todo.repeat !== null && todo.dueDate !== null && nextDueDate !== null) {
-                        setToast({ todoId: todo.id, title: todo.title, previousDueDate: todo.dueDate, nextDueDate });
+                        const previousDueDate = todo.dueDate;
+                        setToast({
+                            id: Date.now(),
+                            message: t("todos.nextTime", { title: todo.title, date: formatShortDate(nextDueDate, locale) }),
+                            actionLabel: t("common.undo"),
+                            onAction: () => updateTodo.mutate({ id: todo.id, changes: { dueDate: previousDueDate } })
+                        });
                     }
                 }
             }
         );
     }
 
-    function undoRepeat(repeatToast: RepeatToast) {
-        updateTodo.mutate({ id: repeatToast.todoId, changes: { dueDate: repeatToast.previousDueDate } });
+    function showAdded(title: string, savedId: Promise<number>) {
+        setToast({
+            id: Date.now(),
+            message: t("common.added", { name: title }),
+            actionLabel: t("common.details"),
+            onAction: () => savedId.then((todoId) => setSheet({ mode: "edit", todoId }), () => undefined)
+        });
     }
 
     function getListNameToShow(todo: Todo, mixesLists: boolean): string | undefined {
@@ -158,7 +169,7 @@ export function TodosPage() {
                 <Chip label={t("todos.newList")} icon={<PlusIcon size={16} />} isDashed onClick={() => setSheet({ mode: "newList" })} />
             </ChipRow>
 
-            {filter.kind === "list" && <AddTodoForm key={filter.listName} listName={filter.listName} />}
+            {filter.kind === "list" && <AddTodoForm key={filter.listName} listName={filter.listName} onAdded={showAdded} />}
             {filter.kind !== "list" && !hasNoLists && <p className={styles.addHint}>{t("todos.pickList")}</p>}
 
             {todosQuery.isPending && <p className={styles.status}>{t("common.loading")}</p>}
@@ -188,6 +199,7 @@ export function TodosPage() {
                         <CheckRow
                             key={todo.id}
                             label={todo.title}
+                            notes={todo.notes}
                             detail={<TodoMeta todo={todo} assignee={users.find((user) => user.id === todo.assigneeId)} listName={getListNameToShow(todo, group.mixesLists)} today={today} />}
                             isDone={todo.done}
                             onToggle={(done) => toggleTodo(todo, done)}
@@ -224,13 +236,7 @@ export function TodosPage() {
             </Sheet>
 
             {toast && (
-                <Toast
-                    key={toast.todoId}
-                    message={t("todos.nextTime", { title: toast.title, date: formatShortDate(toast.nextDueDate, locale) })}
-                    actionLabel={t("common.undo")}
-                    onAction={() => undoRepeat(toast)}
-                    onDismiss={dismissToast}
-                />
+                <Toast key={toast.id} message={toast.message} actionLabel={toast.actionLabel} onAction={toast.onAction} onDismiss={dismissToast} />
             )}
         </>
     );

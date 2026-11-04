@@ -18,6 +18,7 @@ export interface Todo {
     assigneeId: number | null;
     dueDate: string | null;
     repeat: TodoRepeat | null;
+    notes: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -29,6 +30,7 @@ interface TodoFields {
     assigneeId: number | null;
     dueDate: string | null;
     repeat: TodoRepeat | null;
+    notes: string | null;
 }
 
 export class TodosUtils {
@@ -46,6 +48,7 @@ export class TodosUtils {
             t.due_date AS t_due_date,
             t.repeat_every AS t_repeat_every,
             t.repeat_unit AS t_repeat_unit,
+            t.notes AS t_notes,
             t.created_at AS t_created_at,
             t.updated_at AS t_updated_at
         FROM
@@ -75,6 +78,7 @@ export class TodosUtils {
             t.due_date AS t_due_date,
             t.repeat_every AS t_repeat_every,
             t.repeat_unit AS t_repeat_unit,
+            t.notes AS t_notes,
             t.created_at AS t_created_at,
             t.updated_at AS t_updated_at
         FROM
@@ -98,14 +102,15 @@ export class TodosUtils {
             done: false,
             assigneeId: null,
             dueDate: null,
-            repeat: null
+            repeat: null,
+            notes: null
         };
 
-        const fields = await TodosUtils.applyChanges(newTodo, { assigneeId: body?.assigneeId, dueDate: body?.dueDate, repeat: body?.repeat });
+        const fields = await TodosUtils.applyChanges(newTodo, { assigneeId: body?.assigneeId, dueDate: body?.dueDate, repeat: body?.repeat, notes: body?.notes });
 
         const query = `
-        INSERT INTO todos (title, list_name, done, assignee_id, due_date, repeat_every, repeat_unit)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO todos (title, list_name, done, assignee_id, due_date, repeat_every, repeat_unit, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id
         `;
 
@@ -130,6 +135,7 @@ export class TodosUtils {
             due_date = ?,
             repeat_every = ?,
             repeat_unit = ?,
+            notes = ?,
             updated_at = ${DB.now}
         WHERE
             id = ?
@@ -174,7 +180,8 @@ export class TodosUtils {
             done: current.done,
             assigneeId: current.assigneeId,
             dueDate: current.dueDate,
-            repeat: current.repeat
+            repeat: current.repeat,
+            notes: current.notes
         };
 
         if (body?.title !== undefined) {
@@ -199,6 +206,10 @@ export class TodosUtils {
 
         if (body?.repeat !== undefined) {
             fields.repeat = TodosUtils.parseRepeat(body.repeat);
+        }
+
+        if (body?.notes !== undefined) {
+            fields.notes = Generic.parseOptionalText(body.notes, "notes", 5000);
         }
 
         if (fields.repeat === null) {
@@ -282,7 +293,7 @@ export class TodosUtils {
             repeatUnit = fields.repeat.unit;
         }
 
-        return [fields.title, fields.listName, fields.done ? 1 : 0, fields.assigneeId, fields.dueDate, repeatEvery, repeatUnit];
+        return [fields.title, fields.listName, fields.done ? 1 : 0, fields.assigneeId, fields.dueDate, repeatEvery, repeatUnit, fields.notes];
     }
 
     private static toTodo(row: any): Todo {
@@ -299,6 +310,7 @@ export class TodosUtils {
             assigneeId: row.t_assignee_id,
             dueDate: row.t_due_date,
             repeat,
+            notes: row.t_notes,
             createdAt: row.t_created_at,
             updatedAt: row.t_updated_at
         };

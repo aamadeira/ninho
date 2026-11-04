@@ -23,6 +23,13 @@ import styles from "./ShoppingPage.module.css";
 
 type SheetState = { mode: "closed" } | { mode: "edit"; itemId: number } | { mode: "photo"; itemId: number };
 
+interface PageToast {
+    id: number;
+    message: string;
+    actionLabel?: string;
+    onAction?: () => void;
+}
+
 function getSummary(items: ShoppingItem[], t: Translate): string | undefined {
     const openCount = countNeededItems(items);
     if (openCount === 0) {
@@ -40,8 +47,8 @@ export function ShoppingPage() {
     const [selectedStore, setSelectedStore] = useState<string | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [sheet, setSheet] = useState<SheetState>({ mode: "closed" });
-    const [message, setMessage] = useState<string | null>(null);
-    const dismissMessage = useCallback(() => setMessage(null), []);
+    const [toast, setToast] = useState<PageToast | null>(null);
+    const dismissToast = useCallback(() => setToast(null), []);
 
     const items = shoppingQuery.data ?? [];
     const storeNames = getStoreNames(items);
@@ -60,8 +67,17 @@ export function ShoppingPage() {
     }
 
     function finishShopping() {
-        setMessage(describeCheckout(items, t));
+        setToast({ id: Date.now(), message: describeCheckout(items, t) });
         checkOut.mutate();
+    }
+
+    function showAdded(name: string, savedId: Promise<number>) {
+        setToast({
+            id: Date.now(),
+            message: t("common.added", { name }),
+            actionLabel: t("common.details"),
+            onAction: () => savedId.then((itemId) => setSheet({ mode: "edit", itemId }), () => undefined)
+        });
     }
 
     return (
@@ -85,7 +101,7 @@ export function ShoppingPage() {
                 </ChipRow>
             )}
 
-            <AddShoppingItemForm key={selectedStore ?? "all-stores"} defaultStore={selectedStore} storeNames={storeNames} tags={activeTags} />
+            <AddShoppingItemForm key={selectedStore ?? "all-stores"} defaultStore={selectedStore} storeNames={storeNames} tags={activeTags} onAdded={showAdded} />
 
             {shoppingQuery.isPending && <p className={pageStyles.status}>{t("common.loading")}</p>}
             {shoppingQuery.isError && <Notice>{t("shopping.loadError")}</Notice>}
@@ -102,6 +118,7 @@ export function ShoppingPage() {
                                 key={item.id}
                                 label={item.name}
                                 detail={<ShoppingItemDetail item={item} />}
+                                notes={item.notes}
                                 isDone={item.status !== "needed"}
                                 thumbnailUrl={item.image?.thumbnailUrl}
                                 onToggle={(isTicked) => updateShoppingItem.mutate({ id: item.id, changes: { status: isTicked ? "cart" : "needed" } })}
@@ -119,7 +136,7 @@ export function ShoppingPage() {
                 </div>
             ))}
 
-            {message && <Toast message={message} onDismiss={dismissMessage} />}
+            {toast && <Toast key={toast.id} message={toast.message} actionLabel={toast.actionLabel} onAction={toast.onAction} onDismiss={dismissToast} />}
 
             <Sheet title={t("shopping.editTitle")} isOpen={sheet.mode === "edit" && sheetItem !== undefined} onClose={closeSheet}>
                 {sheet.mode === "edit" && sheetItem && <ShoppingItemForm key={sheetItem.id} item={sheetItem} storeNames={storeNames} knownTags={tags} onDone={closeSheet} />}

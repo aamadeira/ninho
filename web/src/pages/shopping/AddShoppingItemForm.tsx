@@ -14,9 +14,10 @@ interface AddShoppingItemFormProps {
     defaultStore: string | null;
     storeNames: string[];
     tags: string[];
+    onAdded: (name: string, savedId: Promise<number>) => void;
 }
 
-export function AddShoppingItemForm({ defaultStore, storeNames, tags }: AddShoppingItemFormProps) {
+export function AddShoppingItemForm({ defaultStore, storeNames, tags, onAdded }: AddShoppingItemFormProps) {
     const { t } = useTranslation();
     const addShoppingItem = useAddShoppingItem();
     const [name, setName] = useState("");
@@ -35,7 +36,9 @@ export function AddShoppingItemForm({ defaultStore, storeNames, tags }: AddShopp
         }
 
         setName("");
-        addShoppingItem.mutate({ name: trimmedName, store: store.trim(), tags }, { onError: () => setName(trimmedName) });
+        const savedId = addShoppingItem.mutateAsync({ name: trimmedName, store: store.trim(), tags }).then((response) => response.item.id);
+        savedId.catch(() => setName(trimmedName));
+        onAdded(trimmedName, savedId);
     }
 
     return (

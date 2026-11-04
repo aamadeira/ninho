@@ -10,9 +10,10 @@ import styles from "../AddForm.module.css";
 
 interface AddTodoFormProps {
     listName: string;
+    onAdded: (title: string, savedId: Promise<number>) => void;
 }
 
-export function AddTodoForm({ listName }: AddTodoFormProps) {
+export function AddTodoForm({ listName, onAdded }: AddTodoFormProps) {
     const { t } = useTranslation();
     const addTodo = useAddTodo();
     const [title, setTitle] = useState("");
@@ -25,7 +26,9 @@ export function AddTodoForm({ listName }: AddTodoFormProps) {
         }
 
         setTitle("");
-        addTodo.mutate({ title: trimmedTitle, listName }, { onError: () => setTitle(trimmedTitle) });
+        const savedId = addTodo.mutateAsync({ title: trimmedTitle, listName }).then((response) => response.todo.id);
+        savedId.catch(() => setTitle(trimmedTitle));
+        onAdded(trimmedTitle, savedId);
     }
 
     const fieldLabel = t("todos.addTo", { list: listName });

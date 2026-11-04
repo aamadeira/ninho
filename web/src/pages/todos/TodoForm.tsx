@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "../../components/Button";
 import { DeleteButton } from "../../components/DeleteButton";
 import { SelectField } from "../../components/SelectField";
+import { TextAreaField } from "../../components/TextAreaField";
 import { TextField } from "../../components/TextField";
 import { todayIsoDate } from "../../lib/dates";
 import { useDeleteTodo, useUpdateTodo } from "../../lib/queries";
@@ -57,6 +58,7 @@ export function TodoForm({ todo, listNames, users, onDone }: TodoFormProps) {
     const [dueDate, setDueDate] = useState(todo.dueDate ?? "");
     const [repeatUnit, setRepeatUnit] = useState<RepeatUnit | "">(todo.repeat?.unit ?? "");
     const [repeatEvery, setRepeatEvery] = useState(String(todo.repeat?.every ?? 1));
+    const [notes, setNotes] = useState(todo.notes ?? "");
 
     const repeat = toRepeat(repeatUnit, repeatEvery);
 
@@ -69,7 +71,7 @@ export function TodoForm({ todo, listNames, users, onDone }: TodoFormProps) {
 
     function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const changes = { title: title.trim(), listName, assigneeId: fromAssigneeValue(assigneeValue), dueDate: dueDate || null, repeat };
+        const changes = { title: title.trim(), listName, assigneeId: fromAssigneeValue(assigneeValue), dueDate: dueDate || null, repeat, notes: notes.trim() || null };
         updateTodo.mutate({ id: todo.id, changes });
         onDone();
     }
@@ -130,6 +132,8 @@ export function TodoForm({ todo, listNames, users, onDone }: TodoFormProps) {
                 </div>
             </fieldset>
             <p className={styles.hint}>{describeSchedule(repeat, dueDate, translator)}</p>
+
+            <TextAreaField label={t("common.notes")} placeholder={t("common.optional")} rows={3} maxLength={5000} value={notes} onChange={(event) => setNotes(event.target.value)} />
 
             <div className={[styles.actions, styles.spread].join(" ")}>
                 <DeleteButton isPending={deleteTodo.isPending} onConfirm={remove} />

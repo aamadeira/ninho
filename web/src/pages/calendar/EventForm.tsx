@@ -48,7 +48,7 @@ export function EventForm({ event, initialDate, onSaved, onCancel }: EventFormPr
             </div>
             <p className={styles.hint}>{t("calendar.timesHint")}</p>
             <TextField label={t("calendar.where")} placeholder={t("common.optional")} value={location} onChange={(changeEvent) => setLocation(changeEvent.target.value)} maxLength={200} />
-            <TextAreaField label={t("calendar.notes")} placeholder={t("common.optional")} rows={3} value={notes} onChange={(changeEvent) => setNotes(changeEvent.target.value)} />
+            <TextAreaField label={t("common.notes")} placeholder={t("common.optional")} rows={3} value={notes} onChange={(changeEvent) => setNotes(changeEvent.target.value)} />
 
             {saveEvent.isError && <Notice>{getErrorMessage(saveEvent.error, t)}</Notice>}
 
