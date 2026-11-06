@@ -162,11 +162,11 @@ export function EntryListField({ label, itemLabel, addLabel, placeholder, isOrde
                     <div className={styles.toolbar}>
                         <button type="button" className={styles.tool} aria-label={t("entries.moveUpLabel", { entry: entryLabel })} disabled={index === 0} onClick={() => move(index, index - 1)}>
                             <ChevronUpIcon size={16} />
-                            {t("entries.up")}
+                            <span className={styles.toolLabel}>{t("entries.up")}</span>
                         </button>
                         <button type="button" className={styles.tool} aria-label={t("entries.moveDownLabel", { entry: entryLabel })} disabled={index === entries.length - 1} onClick={() => move(index, index + 1)}>
                             <ChevronDownIcon size={16} />
-                            {t("entries.down")}
+                            <span className={styles.toolLabel}>{t("entries.down")}</span>
                         </button>
                         <button type="button" className={[styles.tool, styles.removeTool].join(" ")} aria-label={t("entries.removeLabel", { entry: entryLabel })} onClick={() => remove(index)}>
                             <TrashIcon size={16} />
