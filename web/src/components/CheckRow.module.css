@@ -1,5 +1,6 @@
 .row {
     display: flex;
+    transition: background-color var(--duration-fast) var(--ease-out);
     align-items: center;
     min-height: var(--row-height);
     border-top: var(--border);
@@ -36,7 +37,7 @@
     cursor: pointer;
 }
 
-.textButton:active {
+.row:has(.textButton:active) {
     background: var(--surface-hover);
 }
 
@@ -142,7 +143,7 @@
 }
 
 @media (hover: hover) {
-    .textButton:hover {
+    .row:hover {
         background: var(--surface-hover);
     }
 }
