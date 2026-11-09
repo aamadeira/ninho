@@ -3,6 +3,18 @@
     background: var(--paper);
 }
 
+.layout::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: -1;
+    height: 50vh;
+    background: var(--paper);
+    pointer-events: none;
+}
+
 .safariTopBarTint {
     position: fixed;
     top: 0;
@@ -27,7 +39,8 @@
 }
 
 @media (min-width: 900px) {
-    .safariTopBarTint {
+    .safariTopBarTint,
+    .layout::before {
         display: none;
     }
 

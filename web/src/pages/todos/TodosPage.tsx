@@ -120,23 +120,39 @@ export function TodosPage() {
     }
 
     function toggleTodo(todo: Todo, done: boolean) {
-        updateTodo.mutate(
-            { id: todo.id, changes: { done } },
-            {
-                onSuccess: (response) => {
-                    const nextDueDate = response.todo.dueDate;
-                    if (done && todo.repeat !== null && todo.dueDate !== null && nextDueDate !== null) {
-                        const previousDueDate = todo.dueDate;
-                        setToast({
-                            id: Date.now(),
-                            message: t("todos.nextTime", { title: todo.title, date: formatShortDate(nextDueDate, locale) }),
-                            actionLabel: t("common.undo"),
-                            onAction: () => updateTodo.mutate({ id: todo.id, changes: { dueDate: previousDueDate } })
-                        });
+        if (todo.repeat !== null && done) {
+            updateTodo.mutate(
+                { id: todo.id, changes: { done } },
+                {
+                    onSuccess: (response) => {
+                        const nextDueDate = response.todo.dueDate;
+                        if (todo.dueDate !== null && nextDueDate !== null) {
+                            const previousDueDate = todo.dueDate;
+                            setToast({
+                                id: Date.now(),
+                                message: t("todos.nextTime", { title: todo.title, date: formatShortDate(nextDueDate, locale) }),
+                                actionLabel: t("common.undo"),
+                                onAction: () => updateTodo.mutate({ id: todo.id, changes: { dueDate: previousDueDate } })
+                            });
+                        }
                     }
                 }
-            }
-        );
+            );
+            return;
+        }
+
+        let message = t("todos.backOnList", { title: todo.title });
+        if (done) {
+            message = t("todos.markedDone", { title: todo.title });
+        }
+
+        updateTodo.mutate({ id: todo.id, changes: { done } });
+        setToast({
+            id: Date.now(),
+            message,
+            actionLabel: t("common.undo"),
+            onAction: () => updateTodo.mutate({ id: todo.id, changes: { done: !done } })
+        });
     }
 
     function showAdded(title: string, savedId: Promise<number>) {

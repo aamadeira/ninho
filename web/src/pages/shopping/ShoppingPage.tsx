@@ -71,6 +71,22 @@ export function ShoppingPage() {
         checkOut.mutate();
     }
 
+    function toggleItem(item: ShoppingItem, isTicked: boolean) {
+        const previousStatus = item.status;
+        let message = t("shopping.backOnList", { name: item.name });
+        if (isTicked) {
+            message = t("shopping.putInCart", { name: item.name });
+        }
+
+        updateShoppingItem.mutate({ id: item.id, changes: { status: isTicked ? "cart" : "needed" } });
+        setToast({
+            id: Date.now(),
+            message,
+            actionLabel: t("common.undo"),
+            onAction: () => updateShoppingItem.mutate({ id: item.id, changes: { status: previousStatus } })
+        });
+    }
+
     function showAdded(name: string, savedId: Promise<number>) {
         setToast({
             id: Date.now(),
@@ -121,7 +137,7 @@ export function ShoppingPage() {
                                 notes={item.notes}
                                 isDone={item.status !== "needed"}
                                 thumbnailUrl={item.image?.thumbnailUrl}
-                                onToggle={(isTicked) => updateShoppingItem.mutate({ id: item.id, changes: { status: isTicked ? "cart" : "needed" } })}
+                                onToggle={(isTicked) => toggleItem(item, isTicked)}
                                 onEdit={() => setSheet({ mode: "edit", itemId: item.id })}
                                 onOpenImage={() => setSheet({ mode: "photo", itemId: item.id })}
                             />
